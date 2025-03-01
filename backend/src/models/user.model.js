@@ -11,10 +11,14 @@ const userSchema = new Schema({
         required: true,
         unique: true,
     },
-    password:{
+    passwordHash:{
         type: String,
         required: [true, 'Password is required']
     },
+    role: {
+        type: String,
+        enum: ['admin', 'backer', 'company'],
+        required: true },
     refreshToken: {
         type: String,
     },
