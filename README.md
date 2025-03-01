@@ -1,3 +1,3 @@
 # Paila -Crowdfunding Platform
 
-> This project is entirely made by Ishwor Acharya
+Paila is crowdfunding company that involves gathering small contributions from many individuals to fund the initiation or expansion of a business only for Nepal.
