@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Mail, Lock, User, UserCog, ArrowRight, Loader2 } from "lucide-react";
+import postAxios from "../hooks/postAxios";
 
 const SignupForm = ({ onSwitchToLogin }) => {
   const [fullName, setFullName] = useState("");
@@ -8,8 +9,9 @@ const SignupForm = ({ onSwitchToLogin }) => {
   const [role, setRole] = useState("backer");
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const { makeRequest, data, isLoading, error: requestError } = postAxios('http://localhost:8000/api/v1/users/register');
 
   const validateForm = () => {
     const newErrors = {};
@@ -37,14 +39,15 @@ const SignupForm = ({ onSwitchToLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Reset states
-    setSubmitError("");
-    setSubmitSuccess(false);
+    setError("");
+    setMessage("");
 
     // Validate form
     if (!validateForm()) {
       return;
     }
+
+    setIsSubmitting(true);
 
     // Prepare data for API
     const userData = {
@@ -53,39 +56,30 @@ const SignupForm = ({ onSwitchToLogin }) => {
       password,
       role,
     };
-
-    try {
-      setIsSubmitting(true);
-
-      // Make the API call
-      const response = await fetch("https://api.yourservice.com/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-
-      // Handle the response
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create account");
-      }
-
-      // Success handling
-      setSubmitSuccess(true);
-      console.log("Signup successful:", data);
-
-      // Optional: Redirect to login or dashboard
-      // setTimeout(() => onSwitchToLogin(), 2000);
-    } catch (error) {
-      setSubmitError(error.message || "An error occurred during signup");
-      console.error("Signup error:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    
+    await makeRequest(userData);
+    setIsSubmitting(false);
   };
+
+  // Handle successful login data updates
+  useEffect(() => {
+    if (data && !requestError) {
+      setError("");
+      setMessage(data.message || "User registered successfully");
+    }
+  }, [data, requestError]);
+
+  // Show error from the hook if present
+  useEffect(() => {
+    if (requestError) {
+      setMessage("");
+      setError(requestError.response?.data?.message || requestError.message || "An error occurred during registration");
+    }
+  }, [requestError]);
+
+  // Determine success and error states for UI display
+  const submitSuccess = message !== "";
+  const submitError = error !== "";
 
   return (
     <div className="w-full max-w-md">
@@ -96,13 +90,13 @@ const SignupForm = ({ onSwitchToLogin }) => {
 
       {submitSuccess && (
         <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
-          Account created successfully! You can now log in.
+          {message}
         </div>
       )}
 
       {submitError && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-          {submitError}
+          {error}
         </div>
       )}
 
@@ -217,7 +211,7 @@ const SignupForm = ({ onSwitchToLogin }) => {
                 onChange={(e) => setRole(e.target.value)}
               >
                 <option value="backer">Backer</option>
-                <option value="admin">Admin</option>
+                {/* <option value="admin">Admin</option> */}
                 <option value="company">Company</option>
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">

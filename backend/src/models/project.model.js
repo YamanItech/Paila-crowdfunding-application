@@ -1,10 +1,11 @@
 
 import mongoose, {Schema} from 'mongoose';
 const projectSchema = new Schema({
-    CompanyId :{
-        type:Schema.Types.ObjectId,
+    CompanyId: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Company',
-    },
+        required: true
+    },    
     Category:{
         type:String,
         required:true,
@@ -47,9 +48,13 @@ const projectSchema = new Schema({
             required:true,
             trim: true,
         },
-    current_amount:{
+    fund_amount:{
             type: Number,
             required:true,
+        },
+    coverImage: {
+            type: String, // cloudinary url
+            required: true,
         },
     start_date:{
             type: Date,

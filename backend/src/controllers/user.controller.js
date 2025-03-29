@@ -3,8 +3,10 @@ import { ApiError } from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
-import { User } from "../models/user.model.js";
-
+import {User} from "../models/user.model.js";
+import {Backer} from "../models/backer.model.js"
+import {Company} from "../models/company.model.js";
+import {Admin} from "../models/admin.model.js";
 
 const generateAccessAndRefreshTokens = async(userId) =>{
   try {
@@ -74,7 +76,16 @@ const registerUser = asyncHandler( async (req, res) => {
     password,
     role,
   })
-
+  // "admin", "backer", "company"
+  if (user.role === "backer") {
+    await Backer.create({ _id: user._id });
+  }
+  else if(user.role ==="admin"){
+    await Admin.create({ _id: user._id });
+  }
+  else{
+    await Company.create({ _id: user._id });
+  }
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
   )
@@ -101,7 +112,7 @@ const loginUser = asyncHandler(async (req, res) =>{
   console.log(email);
 
   if (!email) {
-    throw new ApiError(400, "username or email is required")
+    throw new ApiError(400, "Email is required")
   }
 
   // Here is an alternative of above code based on logiciscussed in video:

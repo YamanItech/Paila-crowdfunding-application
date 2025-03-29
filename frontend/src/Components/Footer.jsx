@@ -1,149 +1,111 @@
 import React from "react";
-import { FaFacebook, FaGithub, FaInstagram, FaPhone } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "../assets/paila-logo-white.svg"
+import { FaFacebook, FaGithub, FaInstagram } from "react-icons/fa";
+import { MdAddCall } from "react-icons/md";
 import { BsLinkedin } from "react-icons/bs";
 import { MdHome } from "react-icons/md";
 import { IoMail } from "react-icons/io5";
+
 function Footer() {
   return (
-    <div className="row">
-      <footer
-        className="text-center text-lg-start text-dark pt-2"
-        style={{ backgroundColor: "#40b3a2" }}
-      >
-        <section>
-          <div className="container text-center text-md-start mt-5">
-            <div className="row mt-3">
-              <div className="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
-                <h6 className="text-uppercase fw-bold">Raise Rally</h6>
-                <hr
-                  className="mb-4 mt-0 d-inline-block mx-auto"
-                  style={{ width: 60, backgroundColor: "#7c4dff", height: 2 }}
-                />
+    <footer className="bg-black text-white">
+      <section>
+        <div className="flex justify-center p-5">
+          <div className="w-full lg:w-10/12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="text-left">
+             <img src={logo} alt="" srcset="" />
+                <hr className="mb-4 mt-0 inline-block w-16 border-t-2 border-coral" />
                 <p>
-                  "Paila: Empowering crowdfunding platform for individuals and
-                  organizations to fund projects, drive innovation, and create
-                  positive change. Join us in fueling dreams and supporting
-                  impactful initiatives today!"
+                  Fuel dreams, support innovation, and drive
+                  positive <br />change with our empowering crowdfunding
+                  platform. <br />Join us today to make an impact and 
+                  bring impactful<br /> projects to life!
                 </p>
               </div>
-              <div className="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
-                <h6 className="text-uppercase fw-bold">Useful links</h6>
-                <hr
-                  className="mb-4 mt-0 d-inline-block mx-auto"
-                  style={{ width: 60, backgroundColor: "#7c4dff", height: 2 }}
-                />
-                <p>
-                  <a href="#!" className="text-dark">
-                    Your Account
-                  </a>
+              <div className="lg:text-center">
+                <h6 className="uppercase font-bold">Contact</h6>
+                <hr className="mb-4 mt-0 inline-block w-16 border-t-2 border-coral" />
+                <p className="flex items-center lg:justify-center mb-2">
+                  <MdHome size={23} className="mr-2" /> Naxal, Kathmandu
                 </p>
-                <p>
-                  <a href="#!" className="text-dark">
-                    Become an Affiliate
-                  </a>
+                <p className="flex items-center lg:justify-center mb-2">
+                  <IoMail className="mr-2" /> heraldcollege@gmail.com
                 </p>
-                <p>
-                  <a href="#!" className="text-dark">
-                    Shipping Rates
-                  </a>
+                <p className="flex items-center lg:justify-center mb-2">
+                  <MdAddCall size={23} className="mr-2" /> 01 234 567 88
                 </p>
-                <p>
-                  <a href="#!" className="text-dark">
-                    Help
-                  </a>
+                <p className="flex items-center lg:justify-center">
+                  <MdAddCall size={23} className="mr-2" /> 01 234 567 89
                 </p>
               </div>
-              <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
-                <h6 className="text-uppercase fw-bold">Contact</h6>
-                <hr
-                  className="mb-4 mt-0 d-inline-block mx-auto"
-                  style={{ width: 60, backgroundColor: "#7c4dff", height: 2 }}
-                />
-                <p>
-                  <MdHome size={23} /> Naxal,Kathmandu
-                </p>
-                <p>
-                  <IoMail /> heraldcollege@gmail.com
-                </p>
-                <p>
-                  <FaPhone />+ 01 234 567 88
-                </p>
-                <p>
-                  <FaPhone /> + 01 234 567 89
-                </p>
-              </div>
-              <div className="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
-                <h6 className="text-uppercase fw-bold">About Us</h6>
-                <hr
-                  className="mb-4 mt-0 d-inline-block mx-auto"
-                  style={{ width: 60, backgroundColor: "#7c4dff", height: 2 }}
-                />
-                <p>
-                  <a href="#!" className="text-dark">
-                    MDBootstrap
-                  </a>
-                </p>
+              <div className="lg:text-right">
+                <h6 className="uppercase font-bold">Company</h6>
+                <hr className="mb-4 mt-0 inline-block w-16 border-t-2 border-coral lg:ml-auto" />
+                {/* <Link to="/" className="no-underline text-gray-400 hover:text-white"> */}
+                  <p className="mb-2">Homepage</p>
+                {/* </Link> */}
+                {/* <Link to="/aboutus" className="no-underline text-gray-400 hover:text-white"> */}
+                  <p>About Us</p>
+                {/* </Link> */}
               </div>
             </div>
           </div>
-        </section>
-        <section
-          className="d-flex justify-content-between p-4 text-black"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.2)" }}
-        >
-          y
-          <div className="col">
-            <div className="row d-flex text-center">
-              <div className="me-5">
+        </div>
+      </section>
+      <section>
+        <section className="p-4 border-t border-gray-800 border-opacity-25">
+          <div>
+            <div className="flex justify-center text-center mb-4">
+              <div>
                 <span>
-                  <h6 className="text-uppercase fw-medium">
+                  <h6 className="uppercase font-medium">
                     Get connected with us on social networks:
                   </h6>
                 </span>
               </div>
             </div>
-            <div className="row text-center">
+            <div className="text-center">
               <div>
                 <a
                   href="https://www.facebook.com/"
                   target="_blank"
-                  className="text-white me-4"
+                  className="text-gray-400 hover:text-white mr-4 inline-block"
                 >
-                  <FaFacebook />
+                  <FaFacebook className="hover:text-coral transition-colors" />
                 </a>
                 <a
                   href="https://instagram.com/"
                   target="_blank"
-                  className="text-white me-4"
+                  className="text-gray-400 hover:text-white mr-4 inline-block"
                 >
-                  <FaInstagram />
+                  <FaInstagram className="hover:text-coral transition-colors" />
                 </a>
                 <a
                   href="https://www.linkedin.com/"
                   target="_blank"
-                  className="text-white me-4"
+                  className="text-gray-400 hover:text-white mr-4 inline-block"
                 >
-                  <BsLinkedin />
+                  <BsLinkedin className="hover:text-coral transition-colors" />
                 </a>
                 <a
                   href="https://github.com/"
                   target="_blank"
-                  className="text-white me-4"
+                  className="text-gray-400 hover:text-white mr-4 inline-block"
                 >
-                  <FaGithub />
+                  <FaGithub className="hover:text-coral transition-colors" />
                 </a>
               </div>
             </div>
           </div>
+          <div className="text-center text-sm font-semibold pt-4 text-gray-400">
+            © 2025 Copyright: Paila
+          </div>
         </section>
-        <div
-          className="text-center p-3 fw-semibold"
-          style={{ backgroundColor: "#40b3a2" }}
-        >
-          © 2024 Copyright: Paila
-        </div>
-      </footer>
-    </div>
+      </section>
+    </footer>
   );
 }
+
 export default Footer;

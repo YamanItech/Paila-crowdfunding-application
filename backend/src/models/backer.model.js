@@ -11,4 +11,4 @@ const backerSchema=new Schema({
         }
     ]
 })
-export const backer=new mongoose.model('Backer',backerSchema)
+export const Backer=new mongoose.model('Backer',backerSchema)
