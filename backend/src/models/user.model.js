@@ -30,13 +30,21 @@ const userSchema = new Schema(
       enum: ["admin", "backer", "company"],
       required: true,
     },
+    description:{
+      type:String,
+    },
     refreshToken: {
       type: String,
+    },
+    verified:{
+      type:Boolean,
+      default: false
     },
   },
   {
     timestamps: true,
-  }
+  },
+
 )
 userSchema.pre("save", async function (next) {
   if(!this.isModified("password")) return next();

@@ -1,7 +1,9 @@
 import { Router } from "express";
-import {
-  changeCurrentPassword,
+import updateUserVerification, {
+  changeCurrentPassword, getAllBackers, getAllCompanies,
+  getCompanyDetails,
   getCurrentUser,
+  getRoleByMail,
   loginUser,
   logoutUser,
   refreshAccessToken,
@@ -28,14 +30,19 @@ router.route("/register").post(
  registerUser
 );
 
-router.route("/login").post(loginUser);
+router.route("/getAllBackers").get(getAllBackers);
+router.route("/getAllCompanies").get(getAllCompanies);
 
+router.put("/verify",updateUserVerification);
+router.route("/login").post(loginUser);
+router.route("/company/:company_id").get(getCompanyDetails);
 //secured routes
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/refresh-token").post(refreshAccessToken);
-router.route("/change-password").post(verifyJWT, changeCurrentPassword);
+router.route("/change-password").post( changeCurrentPassword);
 router.route("/current-user").get(verifyJWT, getCurrentUser);
 router.route("/update-account").patch(verifyJWT, updateAccountDetails);
+router.route("/role").get(verifyJWT, getRoleByMail);
 
 router
   .route("/avatar")

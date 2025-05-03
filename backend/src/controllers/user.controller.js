@@ -37,11 +37,11 @@ const registerUser = asyncHandler( async (req, res) => {
   // return res
 
 
-  const {fullName, email, password,role } = req.body
+  const {fullName, email, password,role,description } = req.body
   //console.log("email: ", email);
 
   if (
-    [fullName, email,password,role].some((field) => field?.trim() === "")
+    [fullName, email,password,role,description].some((field) => field?.trim() === "")
   ) {
     throw new ApiError(400, "All fields are required")
   }
@@ -75,6 +75,7 @@ const registerUser = asyncHandler( async (req, res) => {
     email:email,
     password,
     role,
+    description
   })
   // "admin", "backer", "company"
   if (user.role === "backer") {
@@ -185,6 +186,21 @@ const logoutUser = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200, {}, "User logged Out"))
 })
 
+const getRoleByMail = asyncHandler(async (req, res) => {
+  // Query the user and exclude the password field in the projection
+  const user = await User.findOne({ email: req.user.email }).select('-password'); 
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Return the user's role
+  return res.status(200).json({
+    status: "success",
+    role: user.role,
+  });
+});
+
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
@@ -233,27 +249,56 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 })
 
+// const changeCurrentPassword = asyncHandler(async(req, res) => {
+//   const {oldPassword, newPassword} = req.body
+//
+//
+//
+//   const user = await User.findById(req.user?._id)
+//   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+//
+//   if (!isPasswordCorrect) {
+//     throw new ApiError(400, "Invalid old password")
+//   }
+//
+//   user.password = newPassword
+//   await user.save({validateBeforeSave: false})
+//
+//   return res
+//     .status(200)
+//     .json(new ApiResponse(200, {}, "Password changed successfully"))
+// })
+//
 const changeCurrentPassword = asyncHandler(async(req, res) => {
-  const {oldPassword, newPassword} = req.body
+  const { oldPassword, newPassword, userId } = req.body;
+  // Or get the userId from a token in the request
+  // const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
+  // const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  // const userId = decodedToken?._id;
 
-
-
-  const user = await User.findById(req.user?._id)
-  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
-
-  if (!isPasswordCorrect) {
-    throw new ApiError(400, "Invalid old password")
+  if(!userId) {
+    throw new ApiError(400, "User ID is required");
   }
 
-  user.password = newPassword
-  await user.save({validateBeforeSave: false})
+  const user = await User.findById(userId);
+
+  if(!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+  if(!isPasswordCorrect) {
+    throw new ApiError(400, "Invalid old password");
+  }
+
+  user.password = newPassword;
+  await user.save({validateBeforeSave: false});
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Password changed successfully"))
-})
-
-
+    .json(new ApiResponse(200, {}, "Password changed successfully"));
+});
 const getCurrentUser = asyncHandler(async(req, res) => {
   return res
     .status(200)
@@ -320,6 +365,68 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
       new ApiResponse(200, user, "Avatar image updated successfully")
     )
 })
+const getCompanyDetails = asyncHandler(async (req, res) => {
+  const { company_id } = req.params;  // Get the company_id from URL parameters
+
+  // Find the company and populate the associated user (company owner)
+  const company = await Company.findById(company_id).populate({
+    path: "_id", // This will populate the referenced User document (company owner)
+    select: "fullName description" // Only select fullName and description fields from User
+  });
+
+  if (!company) {
+    res.status(404).json({ message: "Company not found" });
+    return;
+  }
+
+  // Return the company name (fullName) and description from the populated User
+  res.json({
+    companyName: company._id.fullName,  // fullName from populated user data
+    description: company._id.description,  // description from populated user data
+  });
+});
+const getAllBackers = asyncHandler(async (req, res) => {
+  const backers = await User.find({ role: "backer" }).select("-password -refreshToken");
+
+  return res.status(200).json(
+    new ApiResponse(200, backers, "All Backers")
+  );
+});
+const getAllCompanies = asyncHandler(async (req, res) => {
+  const companies = await User.find({ role: "company" }).select("-password -refreshToken");
+
+  return res.status(200).json(
+    new ApiResponse(200, companies, "All Companies")
+  );
+});
+
+const updateUserVerification = asyncHandler(async (req, res) => {
+  const { userId, verified } = req.body;
+
+  if (typeof verified !== "boolean") {
+    return res.status(400).json(
+      new ApiResponse(400, null, "`verified` must be true or false")
+    );
+  }
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { verified },
+    { new: true }
+  ).select("-password -refreshToken");
+
+  if (!user) {
+    return res.status(404).json(
+      new ApiResponse(404, null, "User not found")
+    );
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, user, `User verification updated to ${verified}`)
+  );
+});
+
+export default updateUserVerification;
 
 
 
@@ -332,5 +439,8 @@ export {
   changeCurrentPassword,
   getCurrentUser,
   updateAccountDetails,
-  updateUserAvatar
+  updateUserAvatar,
+  getRoleByMail,getCompanyDetails,
+  getAllBackers,
+  getAllCompanies
 }

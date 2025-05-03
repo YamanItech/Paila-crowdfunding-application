@@ -52,19 +52,38 @@ const projectSchema = new Schema({
             type: Number,
             required:true,
         },
-    coverImage: {
+    pledged_amount:{
+        type:Number,
+        default:0
+    },
+    noOfBacker:{
+        type: Number,
+        default:0
+    },
+    Images: [{
             type: String, // cloudinary url
             required: true,
-        },
+        }],
     start_date:{
             type: Date,
         },
     end_date:{
             type: Date,
         },
-    pledge: [{
+    Perk: [{
         type: Schema.Types.ObjectId,
-        ref: 'Pledge'
-    }]
+        ref: 'Perk'
+    }],
+    status:{
+        type:String,
+        enum:["Active","Inactive"],
+        default:"Active"
+    },
+     verified:{
+      type:Boolean,
+       default: false
+          },
+
+
 })
 export const Project = mongoose.model('Project',projectSchema);

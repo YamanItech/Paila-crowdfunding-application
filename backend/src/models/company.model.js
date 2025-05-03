@@ -1,6 +1,6 @@
 import mongoose, {Schema, Types} from 'mongoose'
 const companySchema = new Schema({
- userId:{
+ _id:{
      type:Schema.Types.ObjectId,
      ref:'User'
  },
