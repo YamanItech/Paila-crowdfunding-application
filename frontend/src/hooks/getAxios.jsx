@@ -13,7 +13,6 @@ const getAxios=(url)=>{
         setError(false);
         const response = await axios.get(url);
         setData(response.data);
-        console.log('Response data:', response.data); 
       } catch (error) {
         setError(true);
         console.error('Error fetching data:', error);

@@ -19,7 +19,13 @@ export default {
           700: '#783525',
           800: '#502319',
           900: '#28110D'
-        }
+        },
+        'main-bg': '#FAF9F5',
+        'header-bg': '#F0EEE6',
+        'card-bg': '#E3DACC',
+        'card-alt-bg': '#CDC5B9',
+        'card-hover': '#BBB3A8',
+        'button-hover': '#3D3D3A',
       }
     },
   },

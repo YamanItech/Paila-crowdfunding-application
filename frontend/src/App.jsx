@@ -3,15 +3,11 @@ import Header from "./Components/Header";
 import Auth from "./pages/Auth";
 import Footer from "./Components/Footer";
 import Homepage from "./pages/Homepage";
+import AppRoutes from "./router/AppRoutes.jsx";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Homepage/>}/>
-        <Route path="/login" element={<Auth />} />
-      </Routes>
-    </Router>
+ <AppRoutes/>
   );
 }
 
