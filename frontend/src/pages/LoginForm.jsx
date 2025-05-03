@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react"
 import { Mail, Lock } from "lucide-react"
 import postAxios from "../hooks/postAxios"
-
+import {useNavigate} from "react-router-dom";
 const LoginForm = ({ onSwitchToSignup }) => {
+  const Navigate = useNavigate();
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [message, setMessage] = useState("")  
@@ -20,7 +21,7 @@ const LoginForm = ({ onSwitchToSignup }) => {
     }
     
    await makeRequest(credentials);
-    
+
   }
 
   // Handle successful login data updates
@@ -28,6 +29,12 @@ const LoginForm = ({ onSwitchToSignup }) => {
     if (data && !requestError) {
       setError("")
       setMessage(data.message || "User logged in successfully");
+      localStorage.setItem("userRole", data.data.user.role);
+      localStorage.setItem("email", data.data.user.email);
+      localStorage.setItem("Name", data.data.user.fullName);
+      localStorage.setItem("id", data.data.user._id);
+      console.log(data);
+      Navigate("/");
     }
   }, [data, requestError]);
 
@@ -90,25 +97,6 @@ const LoginForm = ({ onSwitchToSignup }) => {
               />
             </div>
           </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              type="checkbox"
-              className="h-4 w-4 text-coral focus:ring-coral border-gray-300 rounded transition-colors"
-            />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-              Remember me
-            </label>
-          </div>
-          <button
-            type="button"
-            className="text-sm font-medium text-coral hover:text-coral-600 transition-colors"
-          >
-            Forgot password?
-          </button>
         </div>
 
         <button

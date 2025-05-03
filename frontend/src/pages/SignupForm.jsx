@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Mail, Lock, User, UserCog, ArrowRight, Loader2 } from "lucide-react";
 import postAxios from "../hooks/postAxios";
-
+import {useNavigate} from "react-router-dom";
 const SignupForm = ({ onSwitchToLogin }) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -12,7 +12,7 @@ const SignupForm = ({ onSwitchToLogin }) => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const { makeRequest, data, isLoading, error: requestError } = postAxios('http://localhost:8000/api/v1/users/register');
-
+const Navigate = useNavigate();
   const validateForm = () => {
     const newErrors = {};
 
@@ -66,6 +66,7 @@ const SignupForm = ({ onSwitchToLogin }) => {
     if (data && !requestError) {
       setError("");
       setMessage(data.message || "User registered successfully");
+      Navigate("/login");
     }
   }, [data, requestError]);
 
