@@ -7,6 +7,7 @@ import {User} from "../models/user.model.js";
 import {Backer} from "../models/backer.model.js"
 import {Company} from "../models/company.model.js";
 import {Admin} from "../models/admin.model.js";
+import {sendEmail} from "../utils/emailService.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 const generateAccessAndRefreshTokens = async(userId) =>{
@@ -472,10 +473,35 @@ const updateUserVerification = asyncHandler(async (req, res) => {
     );
   }
 
+  // Prepare email notification
+  const subject = verified
+    ? "Your account has been verified"
+    : "Your account verification has been revoked";
+
+  const html = `
+    <h2>Hello ${user.fullName || "User"},</h2>
+    <p>Your account verification status has been updated.</p>
+    <p><strong>New Verification Status:</strong> ${verified ? "Verified " : "Not Verified "}</p>
+    <p>If you have any questions, please contact our support team.</p>
+    <p>Thank you,<br><strong>Paila Crowdfunding Nepal</strong></p>
+  `;
+
+  try {
+    await sendEmail({
+      to: user.email,
+      subject,
+      html,
+    });
+  } catch (emailError) {
+    console.error("Error sending verification email:", emailError);
+    // Optionally still continue response even if email fails
+  }
+
   return res.status(200).json(
-    new ApiResponse(200, user, `User verification updated to ${verified}`)
+    new ApiResponse(200, user, `User verification updated to ${verified} and notification email sent.`)
   );
 });
+
 
 export default updateUserVerification;
 

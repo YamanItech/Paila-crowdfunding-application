@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+import { toast } from "react-toastify";
 const ManageCompanies = () => {
     const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -30,12 +30,41 @@ const ManageCompanies = () => {
         }
     };
 
-    const confirmToggle = (userId, currentStatus) => {
-        const action = currentStatus ? "unverify" : "verify";
-        if (window.confirm(`Are you sure you want to ${action} this company?`)) {
-            toggleVerification(userId, currentStatus);
-        }
+    const confirmToggle = (userId, isVerified) => {
+        const actionText = isVerified ? "unverify" : "verify";
+
+        toast(
+          ({ closeToast }) => (
+            <div>
+                <p>Are you sure you want to <strong>{actionText}</strong> this company?</p>
+                <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+                    <button
+                      onClick={() => {
+                          toggleVerification(userId, isVerified);
+                          closeToast();
+                      }}
+                      style={{ padding: "5px 10px", backgroundColor: "#4CAF50", color: "#fff", border: "none", borderRadius: "4px" }}
+                    >
+                        Yes
+                    </button>
+                    <button
+                      onClick={closeToast}
+                      style={{ padding: "5px 10px", backgroundColor: "#ccc", border: "none", borderRadius: "4px" }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+          ),
+          {
+              position: "top-center",
+              autoClose: false,
+              closeOnClick: false,
+              closeButton: false,
+          }
+        );
     };
+
 
     const openKycModal = (company) => {
         setKycModal(company.kyc);

@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { toast } from "react-toastify";
 const ManageProjects = () => {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [updatingProjectId, setUpdatingProjectId] = useState(null); // Track which project is being updated
+    const [updatingStatusProjectId, setUpdatingStatusProjectId] = useState(null);
+    const [updatingFeatureProjectId, setUpdatingFeatureProjectId] = useState(null);
 
-    // Fetch projects data from your API
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/company/allProjects`);
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/company/allProjects`, {
+                    withCredentials: true,
+                });
                 setProjects(response.data.data);
             } catch (error) {
                 console.error("Error fetching projects", error);
@@ -22,12 +24,13 @@ const ManageProjects = () => {
         fetchProjects();
     }, []);
 
-    // Handle toggle for status field
     const handleStatusToggle = async (projectId) => {
-        setUpdatingProjectId(projectId);
+        setUpdatingStatusProjectId(projectId);
         try {
-            await axios.patch(`http://localhost:8000/api/v1/company/projects/status/${projectId}`);
-            // Update the project status locally after the toggle
+            const response = await axios.patch(`${import.meta.env.VITE_BACKEND}/api/v1/company/projects/status/${projectId}`, {}, {
+                withCredentials: true,
+            });
+
             setProjects((prevProjects) =>
               prevProjects.map((project) =>
                 project._id === projectId
@@ -35,10 +38,42 @@ const ManageProjects = () => {
                   : project
               )
             );
+
+            // Add toast notification with backend message
+            toast.success(response.data.message || "Project status updated successfully and email sent.");
         } catch (error) {
             console.error("Error updating project status", error);
+            toast.error(error.response?.data?.message || "Failed to update project status");
         } finally {
-            setUpdatingProjectId(null);
+            setUpdatingStatusProjectId(null);
+        }
+    };
+
+    const handleFeatureToggle = async (projectId, currentVerified) => {
+        setUpdatingFeatureProjectId(projectId);
+        try {
+            const response = await axios.patch(`${import.meta.env.VITE_BACKEND}/api/v1/company/projects/feature/${projectId}`, {
+                verified: !currentVerified
+            }, {
+                withCredentials: true
+            });
+
+            console.log('Feature toggle response:', response.data);
+            toast.success(response.data.message || `Project ${!currentVerified ? "featured" : "unfeatured"} successfully and email sent.`);
+            setProjects((prevProjects) =>
+              prevProjects.map((project) =>
+                project._id === projectId
+                  ? { ...project, verified: !currentVerified }
+                  : project
+              )
+            );
+        } catch (error) {
+            console.error("Error toggling featured status", error);
+            console.error("Error response:", error.response?.data);
+            console.error("Error status:", error.response?.status);
+            toast.error(error.response?.data?.message || "Failed to update featured status");
+        } finally {
+            setUpdatingFeatureProjectId(null);
         }
     };
 
@@ -63,6 +98,7 @@ const ManageProjects = () => {
                                 <th className="py-4 px-6 text-left text-sm font-medium uppercase tracking-wider">Fund Amount</th>
                                 <th className="py-4 px-6 text-left text-sm font-medium uppercase tracking-wider">Status</th>
                                 <th className="py-4 px-6 text-left text-sm font-medium uppercase tracking-wider">Actions</th>
+                                <th className="py-4 px-6 text-left text-sm font-medium uppercase tracking-wider">Featured</th>
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -94,13 +130,30 @@ const ManageProjects = () => {
                                             : "bg-green-500 hover:bg-green-600"
                                         }`}
                                         onClick={() => handleStatusToggle(project._id)}
-                                        disabled={updatingProjectId === project._id}
+                                        disabled={updatingStatusProjectId === project._id}
                                       >
-                                          {updatingProjectId === project._id
+                                          {updatingStatusProjectId === project._id
                                             ? "Updating..."
                                             : project.status === "Active"
                                               ? "Deactivate"
                                               : "Activate"}
+                                      </button>
+                                  </td>
+                                  <td className="py-4 px-6">
+                                      <button
+                                        onClick={() => handleFeatureToggle(project._id, project.verified)}
+                                        className={`py-2 px-4 rounded-md text-white font-medium focus:outline-none transition duration-200 transform hover:scale-105 hover:shadow-md ${
+                                          project.verified
+                                            ? "bg-yellow-500 hover:bg-yellow-600"
+                                            : "bg-gray-400 hover:bg-gray-500"
+                                        }`}
+                                        disabled={updatingFeatureProjectId === project._id}
+                                      >
+                                          {updatingFeatureProjectId === project._id
+                                            ? "Updating..."
+                                            : project.verified
+                                              ? "Unfeature"
+                                              : "Feature"}
                                       </button>
                                   </td>
                               </tr>

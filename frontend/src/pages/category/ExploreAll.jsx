@@ -131,11 +131,11 @@ function ExploreAll() {
             </div>
           ) : !error && data?.data ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {data.data.map((projectData) => (
-                <div key={projectData._id}>
-                  <Card project={projectData} />
-                </div>
-              ))}
+              {data.data
+                .filter(projectData => projectData.status === "Active")
+                .map(projectData => (
+                  <Card key={projectData._id} project={projectData} />
+                ))}
             </div>
           ) : null}
         </div>

@@ -199,9 +199,11 @@ function Food() {
                     </div>
                   ) : Array.isArray(data?.data) && data.data.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {data.data.map((projectData) => (
-                          <Card key={projectData._id} project={projectData} />
-                        ))}
+                        {data.data
+                          .filter(projectData => projectData.status === "Active")
+                          .map(projectData => (
+                            <Card key={projectData._id} project={projectData} />
+                          ))}
                     </div>
                   ) : (
                     <div className="text-center p-10">

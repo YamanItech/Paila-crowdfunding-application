@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import getAxios from '../hooks/getAxios.jsx';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from "react-router-dom";
+import Card from "./Card.jsx";
 
 const CarouselCard = ({ image, title, isSelected, index, onSelect }) => (
   <div
@@ -35,7 +36,7 @@ const FeaturedProduct = () => {
   useEffect(() => {
     if (data?.data?.length > 0) {
       const verifiedProjects = data.data.filter(
-        project => project.CompanyId?._id?.verified === true
+        project => project.verified === true && project.status === "Active"
       );
       const randomized = shuffleArray(verifiedProjects);
       setShuffledCards(randomized);

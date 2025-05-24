@@ -42,9 +42,11 @@ function Homepage() {
           <div className=" p-5 container mx-auto">
             <h2 className="text-4xl font-bold mb-4">All Projects</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {data.data.map((projectData) => (
-                <Card key={projectData._id} project={projectData} />
-              ))}
+              {data.data
+                .filter(projectData => projectData.status === "Active")
+                .map(projectData => (
+                  <Card key={projectData._id} project={projectData} />
+                ))}
             </div>
           </div>
 

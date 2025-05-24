@@ -152,6 +152,58 @@ const toggleProjectStatus = async (req, res, next) => {
   }
 };
 
+const featureProject = asyncHandler(async (req, res) => {
+  const { projectId } = req.params;
+  const { verified } = req.body;
+
+  if (typeof verified !== "boolean") {
+    throw new ApiError(400, "Invalid verified value");
+  }
+
+  const project = await Project.findById(projectId).populate({
+    path: 'CompanyId',
+    populate: {
+      path: '_id',
+      model: 'User',
+      select: 'email fullName'
+    }
+  });
+
+  if (!project) {
+    throw new ApiError(404, "Project not found");
+  }
+
+  project.verified = verified;
+  await project.save();
+
+  // Get the company email and details
+  const companyEmail = project.CompanyId._id.email;
+  const companyName = project.CompanyId._id.fullName;
+  const projectName = project.project_name;
+  const featuredStatus = verified ? "Featured" : "Unfeatured";
+
+  // Send the email
+  const subject = `Project "${projectName}" Featured Status Updated`;
+  const html = `
+    <h2>Hello ${companyName},</h2>
+    <p>We want to inform you that the featured status of your project <strong>${projectName}</strong> has been updated.</p>
+    <p><strong>New Featured Status:</strong> ${featuredStatus}</p>
+    ${verified ?
+    '<p>🎉 Congratulations! Your project is now featured and will receive increased visibility on our platform.</p>' :
+    '<p>Your project has been unfeatured but remains active on our platform.</p>'
+  }
+    <p>Thank you for using <strong>Paila Crowdfunding Nepal</strong>!</p>
+  `;
+
+  await sendEmail({ to: companyEmail, subject, html });
+
+  res.status(200).json({
+    success: true,
+    message: `Project ${verified ? "featured" : "unfeatured"} successfully and email sent.`,
+    data: project,
+  });
+});
+
 const getByCategory = asyncHandler(async (req, res) => {
   const { categoryName } = req.params; // Get category from route parameter
   const searchQuery = req.query.search; // Get search query from query parameters
@@ -369,4 +421,4 @@ const getCompanyTransactionSummary = asyncHandler(async (req, res) => {
   );
 });
 
-export { addProject, getAllProjects ,toggleProjectStatus,getByCategory,updateProject,getProjectsByCompanyId,getBackerFundedProjects,getAllTransactionSummary,getCompanyTransactionSummary};
+export { addProject, getAllProjects ,featureProject,toggleProjectStatus,getByCategory,updateProject,getProjectsByCompanyId,getBackerFundedProjects,getAllTransactionSummary,getCompanyTransactionSummary};
