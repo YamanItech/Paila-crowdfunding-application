@@ -388,7 +388,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is missing");
   }
 
-  // TODO: delete old image - assignment
+  const userId = req.user?._id; // ✅ Comes from verified JWT middleware
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
 
@@ -396,11 +396,13 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Error while uploading avatar");
   }
 
-  const userId = req.params.id;
-
   const user = await User.findByIdAndUpdate(
     userId,
-    { $set: { avatar: avatar.url } },
+    {
+      $set: {
+        avatar: avatar.url,
+      },
+    },
     { new: true }
   ).select("-password");
 
@@ -408,9 +410,9 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User not found");
   }
 
-  return res.status(200).json(
-    new ApiResponse(200, user, "Avatar image updated successfully")
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Avatar image updated successfully"));
 });
 
 
@@ -488,6 +490,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "User profile fetched successfully"));
 });
+
 
 export { getUserProfile };
 

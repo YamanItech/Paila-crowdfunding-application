@@ -9,8 +9,10 @@ import {
     LogOut,
     X, Home
 } from 'lucide-react';
+import getAxios from "../../hooks/getAxios.jsx";
 
 function AdminDashboard() {
+    const { data, error, loading } = getAxios(`${import.meta.env.VITE_BACKEND}/api/v1/users/getUserProfile`);
     const navigate = useNavigate();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -44,15 +46,23 @@ function AdminDashboard() {
                     <div className="flex flex-col items-center p-4">
                         <div className="mb-2 relative">
                             {user.profilePhoto ? (
-                                <img
-                                    src={user.profilePhoto}
-                                    alt="AdminProfile"
-                                    className="w-20 h-20 rounded-full object-cover border-4 border-gray-200"
-                                />
+                              <img
+                                src={user.profilePhoto}
+                                alt="Backer Profile"
+                                className="w-20 h-20 rounded-full object-cover border-4 border-gray-200"
+                              />
                             ) : (
-                                <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-200">
+                              <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-200">
+                                  {data && data.data && data.data.avatar ? (
+                                    <img
+                                      src={data.data.avatar}
+                                      alt="User Avatar"
+                                      className="w-full h-full rounded-full object-cover"
+                                    />
+                                  ) : (
                                     <User size={40} className="text-gray-400" />
-                                </div>
+                                  )}
+                              </div>
                             )}
                         </div>
                         <p className="font-semibold text-gray-800">{user.name}</p>
