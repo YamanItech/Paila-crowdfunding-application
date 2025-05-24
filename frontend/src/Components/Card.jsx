@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 import { BadgeCheck, Star } from 'lucide-react';
 
 const Card = ({ project }) => {
+    const nav=useNavigate();
     const progress = (project.pledged_amount/project.fund_amount  ) * 100;
 
     return (
@@ -25,8 +26,9 @@ const Card = ({ project }) => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
 
                 {/* Category tag positioned over image */}
-                <div className="absolute bottom-4 left-4">
-                    <span className="text-sm font-medium px-3 py-1 rounded-full bg-white text-gray-800 shadow-sm">
+
+                <div className="absolute bottom-4 left-4 hover:cursor-pointer" onClick={() => nav(`/category/${project.Category}`)}>
+                    <span className="text-sm font-medium px-3 py-1 rounded-full bg-white hover:bg-coral-400 hover:text-white text-gray-800 shadow-sm">
                         {project.Category}
                     </span>
                 </div>

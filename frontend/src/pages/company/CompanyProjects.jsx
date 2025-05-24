@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Perk from '../../Components/perk.jsx'; // Assuming you have the Perk component from your previous code
+import Perk from '../../Components/perk.jsx';
+import { toast } from "react-toastify"; // Assuming you have the Perk component from your previous code
 
 const CompanyProjects = () => {
     const [projects, setProjects] = useState([]);
@@ -86,7 +87,7 @@ const CompanyProjects = () => {
 
         // Validate form data
         if (!editFormData.project_name.trim() && !editFormData.project_description.trim()) {
-            alert("At least one of project name or description must be provided");
+            toast.error("At least one of project name or description must be provided");
             return;
         }
 
@@ -101,9 +102,10 @@ const CompanyProjects = () => {
             // Refresh projects list
             await fetchProjects();
             closeEditModal();
+            toast.success("Project updated successfully!");
         } catch (error) {
             console.error("Error updating project", error);
-            alert("Failed to update project. Please try again.");
+            toast.error("Failed to update project. Please try again.");
         } finally {
             setUpdating(false);
         }

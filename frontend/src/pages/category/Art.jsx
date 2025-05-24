@@ -18,6 +18,10 @@ import Footer from "../../Components/Footer";
 import Card from "../../Components/Card";
 
 function Art() {
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    });
+
     const [search, setSearch] = useState("");
     const [data, setData] = useState({ data: [] });
     const [loading, setLoading] = useState(true);

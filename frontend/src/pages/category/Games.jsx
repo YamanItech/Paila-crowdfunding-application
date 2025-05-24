@@ -25,6 +25,9 @@ function Games() {
     const [isHovered, setIsHovered] = useState(false);
     const hoverTimeout = useRef(null);
     const dropdownRef = useRef(null);
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    });
 
     // Fetch data with proper error handling
     useEffect(() => {

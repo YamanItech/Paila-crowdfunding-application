@@ -85,7 +85,7 @@ const AddProject = () => {
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
         if (files.length + formData.Images.length > 3) {
-            return alert('You can only upload up to 3 images!');
+            return toast.error('You can only upload up to 3 images!');
         }
 
         const validFiles = files.filter(
@@ -93,7 +93,7 @@ const AddProject = () => {
         );
 
         if (validFiles.length !== files.length) {
-            alert('Some files were invalid! Only image files under 3MB are allowed.');
+            toast.error('Some files were invalid! Only image files under 3MB are allowed.');
         }
 
         const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
@@ -121,27 +121,27 @@ const AddProject = () => {
         const wordCount = project_description.trim().split(/\s+/).filter(Boolean).length;
 
         if (!project_name.trim() || !project_description.trim()) {
-            return alert('Project name and description are required!');
+            return toast.error('Project name and description are required!');
         }
 
         if (wordCount < 25 || wordCount > 40) {
-            return alert('Project description must be between 25 and 40 words!');
+            return toast.error('Project description must be between 25 and 40 words!');
         }
 
         if (!fund_amount || fund_amount <= 0) {
-            return alert('Funding amount must be greater than zero!');
+            return toast.error('Funding amount must be greater than zero!');
         }
 
         if (!start_date || !end_date) {
-            return alert('Both start and end dates are required!');
+            return toast.error('Both start and end dates are required!');
         }
 
         if (new Date(start_date) >= new Date(end_date)) {
-            return alert('Start date must be before end date!');
+            return toast.error('Start date must be before end date!');
         }
 
         if (formData.Images.length !== 3) {
-            return alert('Please upload exactly 3 images.');
+            return toast.error('Please upload exactly 3 images.');
         }
 
         const formDataToSend = new FormData();
