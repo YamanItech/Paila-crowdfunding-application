@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, CheckCircle, AlertCircle } from 'lucide-react';
-
+import { toast } from "react-toastify";
+import { Link} from "react-router-dom";
 export default function Kyc() {
   const id=localStorage.getItem('id');
   const [step, setStep] = useState(1);
@@ -138,7 +139,10 @@ export default function Kyc() {
   };
 
 
-  if (submitted) {
+  if (submitted)
+  {
+    toast.success('KYC Submitted Successfully!')
+
     return (
       <div className="max-w-md mx-auto px-4 py-6 bg-white rounded-lg shadow">
         <div className="flex flex-col items-center justify-center py-6">
@@ -146,11 +150,15 @@ export default function Kyc() {
           <h2 className="text-xl font-bold text-gray-800 mb-2">KYC Submitted Successfully!</h2>
           <p className="text-gray-600 text-center mb-4">Your KYC information is under review.</p>
           <p className="text-gray-500 text-sm">Ref: KYC-{Math.random().toString(36).substring(2, 8).toUpperCase()}</p>
+            <Link to="/company">
+              <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Go to Dashboard
+              </button>
+            </Link>
         </div>
       </div>
     );
   }
-
   return (
     <div className="max-w-md mx-auto px-4 bg-white rounded-lg shadow">
       <div className="py-4 border-b border-gray-200">

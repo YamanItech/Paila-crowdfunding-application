@@ -16,14 +16,12 @@ function AdminDashboard() {
     const navigate = useNavigate();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-    const name=localStorage.getItem('Name');
-    const role=localStorage.getItem('userRole');
-    const email=localStorage.getItem('email');
     const user = {
-        name: name,
-        role: role,
+        name: data?.data?.fullName ,
+        role: data?.data?.role ,
         profilePhoto: '',
     };
+
 
     const handleLogout = () => {
         localStorage.clear();

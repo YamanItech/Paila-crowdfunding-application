@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Camera } from 'lucide-react';
 import getAxios from "../../hooks/getAxios.jsx";
+import { useNavigate } from "react-router-dom";
 
 const CompanyProfile = () => {
+    const nav = useNavigate();
+    const [kycModal, setKycModal] = useState(null);
     const { data, error, loading } = getAxios(`${import.meta.env.VITE_BACKEND}/api/v1/users/getUserProfile`);
     const [user, setUser] = useState({
         fullName: '',
@@ -12,12 +15,10 @@ const CompanyProfile = () => {
 
     const [isEditMode, setIsEditMode] = useState(false);
     const [originalUser, setOriginalUser] = useState(null);
-
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
-
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -39,6 +40,25 @@ const CompanyProfile = () => {
     const showToast = (type, text) => {
         setMessage({ type, text });
         setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    };
+
+    // Function to check if KYC is valid
+    const hasValidKyc = (kycData) => {
+        return kycData && kycData.data && Object.keys(kycData.data).length > 0;
+    };
+
+    // Function to open KYC modal
+    const openKycModal = (kycData) => {
+        setKycModal(kycData);
+    };
+
+    // Function to handle KYC button click
+    const handleKycButtonClick = () => {
+        if (data?.data?.kyc && hasValidKyc(data.data.kyc)) {
+            openKycModal(data.data.kyc);
+        } else {
+            nav('/company/kyc');
+        }
     };
 
     const updateAccountDetails = async () => {
@@ -159,6 +179,21 @@ const CompanyProfile = () => {
         }
     };
 
+    // Function to format dates
+    const formatDate = (date) => {
+        if (!date) return 'N/A';
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+    };
+
+    // Function to get KYC image URL
+    const getKycImageUrl = (kycData) => {
+        return kycData?.url || 'https://via.placeholder.com/300';
+    };
+
     return (
       <div className="bg-gray-50 min-h-screen p-6">
           {message.text && (
@@ -277,12 +312,93 @@ const CompanyProfile = () => {
                               >
                                   Change Password
                               </button>
+
+                              <button
+                                className={`px-4 py-2 rounded transition-colors ${hasValidKyc(data?.data?.kyc) ? 'bg-coral-500 hover:bg-coral-600 text-white' : 'bg-gray-500 text-white hover:bg-gray-600'}`}
+                                onClick={handleKycButtonClick}
+                              >
+                                  {hasValidKyc(data?.data?.kyc) ? 'View KYC' : 'Complete KYC'}
+                              </button>
                           </div>
                       </div>
                   </div>
               </div>
           </div>
 
+          {/* KYC Modal */}
+          {kycModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-screen p-6 relative">
+                    <button
+                      className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl z-10"
+                      onClick={() => setKycModal(null)}
+                      aria-label="Close modal"
+                    >
+                        ×
+                    </button>
+                    <h2 className="text-2xl font-semibold mb-4 text-coral-700 border-b pb-2">KYC Information</h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="overflow-auto max-h-96 bg-gray-50 p-4 rounded-lg">
+                            <h3 className="text-lg font-medium mb-2 text-gray-700">Identity Document</h3>
+                            <img
+                              src={getKycImageUrl(kycModal)}
+                              alt="KYC Document"
+                              className="w-full h-auto rounded border border-gray-300"
+                            />
+                        </div>
+
+                        <div className="overflow-auto max-h-96">
+                            <h3 className="text-lg font-medium mb-2 text-gray-700">Personal Information</h3>
+                            <div className="space-y-3">
+                                {kycModal?.data ? (
+                                  <>
+                                      <div className="grid grid-cols-2 gap-2">
+                                          <div className="text-gray-600">Full Name:</div>
+                                          <div className="font-medium">{kycModal.data.fullName || 'N/A'}</div>
+                                          <div className="text-gray-600">Gender:</div>
+                                          <div className="font-medium capitalize">{kycModal.data.gender || 'N/A'}</div>
+                                          <div className="text-gray-600">Date of Birth:</div>
+                                          <div className="font-medium">{formatDate(kycModal.data.dob)}</div>
+                                          <div className="text-gray-600">Citizenship #:</div>
+                                          <div className="font-medium">{kycModal.data.citizenshipNumber || 'N/A'}</div>
+                                          <div className="text-gray-600">Issue District:</div>
+                                          <div className="font-medium">{kycModal.data.citizenshipIssueDistrict || 'N/A'}</div>
+                                          <div className="text-gray-600">Issue Date:</div>
+                                          <div className="font-medium">{formatDate(kycModal.data.citizenshipIssueDate)}</div>
+                                      </div>
+                                      <h3 className="text-lg font-medium my-2 text-gray-700 border-t pt-2">Address</h3>
+                                      <div className="grid grid-cols-2 gap-2">
+                                          <div className="text-gray-600">Province:</div>
+                                          <div className="font-medium">{kycModal.data.province || 'N/A'}</div>
+                                          <div className="text-gray-600">District:</div>
+                                          <div className="font-medium">{kycModal.data.district || 'N/A'}</div>
+                                          <div className="text-gray-600">Address:</div>
+                                          <div className="font-medium">{kycModal.data.address || 'N/A'}</div>
+                                      </div>
+                                      <h3 className="text-lg font-medium my-2 text-gray-700 border-t pt-2">Contact</h3>
+                                      <div className="grid grid-cols-2 gap-2">
+                                          <div className="text-gray-600">Mobile:</div>
+                                          <div className="font-medium">{kycModal.data.mobileNumber || 'N/A'}</div>
+                                          <div className="text-gray-600">Email:</div>
+                                          <div className="font-medium">{kycModal.data.email || 'N/A'}</div>
+                                          <div className="text-gray-600">Occupation:</div>
+                                          <div className="font-medium capitalize">{kycModal.data.occupation || 'N/A'}</div>
+                                      </div>
+                                  </>
+                                ) : (
+                                  <div className="text-gray-500 italic">
+                                      Detailed KYC information not available.
+                                  </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          )}
+
+          {/* Password Modal */}
           {isPasswordModalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                 <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
