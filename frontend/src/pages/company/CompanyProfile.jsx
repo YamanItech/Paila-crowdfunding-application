@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
+import { Link,useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 const CompanyProfile = () => {
+    const verify = localStorage.getItem('verified');
     const [user, setUser] = useState({
         fullName: '',
         email: '',
@@ -31,12 +32,11 @@ const CompanyProfile = () => {
 
     const updatePassword = async () => {
         if (newPassword !== confirmPassword) {
-            setMessage({ type: 'error', text: 'New passwords do not match.' });
+            toast.error('New passwords do not match.');
             return;
         }
 
         setIsLoading(true);
-        setMessage({ type: '', text: '' });
 
         try {
             const userId = localStorage.getItem('id');
@@ -57,18 +57,18 @@ const CompanyProfile = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Something went wrong.');
 
-            setMessage({ type: 'success', text: 'Password updated successfully!' });
+            toast.success('Password updated successfully!');
+
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
 
             setTimeout(() => {
                 setIsPasswordModalOpen(false);
-                setMessage({ type: '', text: '' });
-                navigate('/company'); // change this path if needed
+                navigate('/company');
             }, 2000);
         } catch (error) {
-            setMessage({ type: 'error', text: error.message });
+            toast.error(error.message);
         } finally {
             setIsLoading(false);
         }
@@ -122,8 +122,21 @@ const CompanyProfile = () => {
                                 >
                                     Change password
                                 </button>
+                                {verify !== 'verified' ? (
+                                  <Link to="/company/kyc">
+                                      <button
+                                        className="bg-coral-800 hover:bg-coral text-white px-4 py-2 rounded transition-colors"
+                                      >
+                                          Get verified
+                                      </button>
+                                  </Link>
+                                ) : null}
+
+
+
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>

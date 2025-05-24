@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { BadgeCheck, Star } from 'lucide-react';
 
 const Card = ({ project }) => {
-    const progress = Math.floor(Math.random() * 101);
+    const progress = (project.pledged_amount/project.fund_amount  ) * 100;
 
     return (
         <div className="w-full max-w-sm rounded-xl overflow-hidden shadow-lg bg-white relative group transition-all duration-300 hover:shadow-xl font-sans">
@@ -66,7 +66,7 @@ const Card = ({ project }) => {
                     <div className="w-full h-2 bg-card-alt-bg rounded-full overflow-hidden">
                         <div
                             className="h-full bg-coral rounded-full transition-all duration-500 ease-out"
-                            style={{ width: `${Math.min(progress, 100)}%` }}
+                            style={{ width: `${progress}%` }}
                         ></div>
                     </div>
                 </div>

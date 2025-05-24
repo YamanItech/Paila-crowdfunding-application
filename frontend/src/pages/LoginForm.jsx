@@ -1,50 +1,44 @@
-import React, { useState, useEffect } from "react"
-import { Mail, Lock } from "lucide-react"
-import postAxios from "../hooks/postAxios"
-import {useNavigate} from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Mail, Lock } from "lucide-react";
+import postAxios from "../hooks/postAxios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 const LoginForm = ({ onSwitchToSignup }) => {
   const Navigate = useNavigate();
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [message, setMessage] = useState("")  
-  const [error, setError] = useState("")      
-  const { makeRequest, data, isLoading, error: requestError } = postAxios('http://localhost:8000/api/v1/users/login');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { makeRequest, data, isLoading, error: requestError } = postAxios(
+    `${import.meta.env.VITE_BACKEND}/api/v1/users/login`
+  );
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")  
-    setMessage("")
-    
-    const credentials = {
-      "email": email,
-      "password": password
-    }
-    
-   await makeRequest(credentials);
+    e.preventDefault();
+    const credentials = { email, password };
+    await makeRequest(credentials);
+  };
 
-  }
-
-  // Handle successful login data updates
   useEffect(() => {
     if (data && !requestError) {
-      setError("")
-      setMessage(data.message || "User logged in successfully");
+      toast.success("Welcome back!");
       localStorage.setItem("userRole", data.data.user.role);
       localStorage.setItem("email", data.data.user.email);
       localStorage.setItem("Name", data.data.user.fullName);
       localStorage.setItem("id", data.data.user._id);
-      console.log(data);
       Navigate("/");
     }
   }, [data, requestError]);
 
-  // Show error from the hook if present
   useEffect(() => {
     if (requestError) {
-      setMessage("")
-      setError(requestError.response?.data?.message || requestError.message || "An error occurred during login")
+      toast.error(
+        requestError.response?.data?.message ||
+        requestError.message ||
+        "An error occurred during login"
+      );
     }
-  }, [requestError])
+  }, [requestError]);
 
   return (
     <div className="w-full max-w-md">
@@ -52,9 +46,6 @@ const LoginForm = ({ onSwitchToSignup }) => {
         Welcome Back
       </h2>
       <p className="text-center text-gray-600 mb-8">Sign in to your account</p>
-
-      {message && <p className="text-center text-green-600">{message}</p>}
-      {error && <p className="text-center text-red-600">{error}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
@@ -121,7 +112,7 @@ const LoginForm = ({ onSwitchToSignup }) => {
         </div>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;

@@ -1,4 +1,4 @@
-import Transaction from "../models/paymentModel.js";
+import { Transaction } from "../models/paymentModel.js";
 import {Project } from"../models/project.model.js"
 import { generateHmacSha256Hash } from "../utils/helper.js";
 import axios from "axios";
@@ -11,7 +11,7 @@ const initiatePayment = async (req, res) => {
         paymentGateway,
         customerName,
         customerEmail,
-        perk,
+            perk,
         uuid
     } = req.body;
 
@@ -31,7 +31,7 @@ const initiatePayment = async (req, res) => {
             product_name: "Crowdfunding",
             product_id: productId,
             backer_id: backerId,
-            perk,
+            perk:perk,
             amount,
             payment_gateway: paymentGateway,
             UUID:uuid

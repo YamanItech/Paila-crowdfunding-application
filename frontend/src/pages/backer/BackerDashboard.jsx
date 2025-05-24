@@ -9,8 +9,10 @@ import {
     LogOut,
     X, Home, FilePlus, Files
 } from 'lucide-react';
+import getAxios from "../../hooks/getAxios.jsx";
 
 function BackerDashboard() {
+    const { data, error, loading } = getAxios(`${import.meta.env.VITE_BACKEND}/api/v1/users/getUserProfile`);
     const navigate = useNavigate();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -51,7 +53,15 @@ function BackerDashboard() {
                                 />
                             ) : (
                                 <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-200">
+                                    {data && data.data && data.data.avatar ? (
+                                      <img
+                                        src={data.data.avatar}
+                                        alt="User Avatar"
+                                        className="w-full h-full rounded-full object-cover"
+                                      />
+                                    ) : (
                                     <User size={40} className="text-gray-400" />
+                                      )}
                                 </div>
                             )}
                         </div>
@@ -84,17 +94,7 @@ function BackerDashboard() {
                             <User className="w-5 h-5 mr-3" />
                             Profile
                         </NavLink>
-                        <NavLink
-                            to="/backer/projects"
-                            className={({ isActive }) =>
-                                `flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 ${
-                                    isActive ? 'bg-gray-100 border-r-4 border-blue-500' : ''
-                                }`
-                            }
-                        >
-                            <Files className="w-5 h-5 mr-3" />
-                            Funded Projects
-                        </NavLink>
+
 
 
 

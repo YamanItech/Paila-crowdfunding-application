@@ -1,13 +1,24 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Header from "./Components/Header";
-import Auth from "./pages/Auth";
-import Footer from "./Components/Footer";
-import Homepage from "./pages/Homepage";
 import AppRoutes from "./router/AppRoutes.jsx";
+import { SearchProvider } from "./router/SearchContext.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
- <AppRoutes/>
+    <SearchProvider>
+      <AppRoutes />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light" // or "dark"
+      />
+    </SearchProvider>
   );
 }
 

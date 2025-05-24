@@ -3,10 +3,10 @@ import Header from '../Components/Header';
 import Footer from '../Components/Footer';
 import getAxios from "../hooks/getAxios.jsx";
 import Card from "../Components/Card.jsx";
-import all from "../assets/all.jpg";
+import FeaturedProduct from "../Components/FeaturedProduct.jsx";
 
 function Homepage() {
-    const { data, loading } = getAxios(`http://localhost:8000/api/v1/company/allProjects`);
+    const { data, loading } = getAxios(`${import.meta.env.VITE_BACKEND}/api/v1/company/allprojects`);
 
     // Handle loading state
     if (loading) {
@@ -22,20 +22,19 @@ function Homepage() {
         <>
             <Header />
             {/* Hero Section */}
-            <div className="relative h-[400px] flex items-center justify-center overflow-hidden">
-                <div className="absolute inset-0">
-                    <img src={all} alt="All Categories" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black bg-opacity-50" />
-                </div>
-                <h1 className="relative text-white text-7xl font-bold tracking-wider">
-                    All Projects
-                </h1>
+          <div>
+            <FeaturedProduct/>
+          </div>
+          <div className=" p-5 container mx-auto">
+            <h2 className="text-4xl font-bold mb-4">All Projects</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {data.data.map((projectData) => (
+                <Card key={projectData._id} project={projectData} />
+              ))}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-5 bg-main-bg">
-                {data.data.map((projectData) => (
-                    <Card key={projectData._id} project={projectData} />
-                ))}
-            </div>
+          </div>
+
+
             <Footer />
         </>
     );

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-// it's axios to get the api content
-const getAxios=(url)=>{
+
+const getAxios = (url) => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -11,7 +11,11 @@ const getAxios=(url)=>{
       try {
         setLoading(true);
         setError(false);
-        const response = await axios.get(url);
+
+        const response = await axios.get(url, {
+          withCredentials: true,
+        });
+
         setData(response.data);
       } catch (error) {
         setError(true);
@@ -26,4 +30,5 @@ const getAxios=(url)=>{
 
   return { data, error, loading };
 };
+
 export default getAxios;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from "react-toastify";
 
 const BackerProfile = () => {
     const [user, setUser] = useState({
@@ -31,18 +32,17 @@ const BackerProfile = () => {
 
     const updatePassword = async () => {
         if (newPassword !== confirmPassword) {
-            setMessage({ type: 'error', text: 'New passwords do not match.' });
+            toast.error('New passwords do not match.');
             return;
         }
 
         setIsLoading(true);
-        setMessage({ type: '', text: '' });
 
         try {
             const userId = localStorage.getItem('id');
             if (!userId) throw new Error('User ID not found.');
 
-            const response = await fetch('http://localhost:8000/api/v1/users/change-password', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND}/api/v1/users/change-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -57,18 +57,18 @@ const BackerProfile = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Something went wrong.');
 
-            setMessage({ type: 'success', text: 'Password updated successfully!' });
+            toast.success('Password updated successfully!');
+
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
 
             setTimeout(() => {
                 setIsPasswordModalOpen(false);
-                setMessage({ type: '', text: '' });
-                navigate('/company'); // change this path if needed
+                navigate('/backer');
             }, 2000);
         } catch (error) {
-            setMessage({ type: 'error', text: error.message });
+            toast.error(error.message);
         } finally {
             setIsLoading(false);
         }

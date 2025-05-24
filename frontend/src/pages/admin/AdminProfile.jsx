@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import { toast } from 'react-toastify';
 const AdminProfile = () => {
   const [user, setUser] = useState({
     fullName: '',
@@ -31,18 +31,17 @@ const AdminProfile = () => {
 
   const updatePassword = async () => {
     if (newPassword !== confirmPassword) {
-      setMessage({ type: 'error', text: 'New passwords do not match.' });
+      toast.error('New passwords do not match.');
       return;
     }
 
     setIsLoading(true);
-    setMessage({ type: '', text: '' });
 
     try {
       const userId = localStorage.getItem('id');
       if (!userId) throw new Error('User ID not found.');
 
-      const response = await fetch('http://localhost:8000/api/v1/users/change-password', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND}/api/v1/users/change-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,22 +56,23 @@ const AdminProfile = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Something went wrong.');
 
-      setMessage({ type: 'success', text: 'Password updated successfully!' });
+      toast.success('Password updated successfully!');
+
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
 
       setTimeout(() => {
         setIsPasswordModalOpen(false);
-        setMessage({ type: '', text: '' });
-        navigate('/admin'); 
+        navigate('/admin');
       }, 2000);
     } catch (error) {
-      setMessage({ type: 'error', text: error.message });
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
       <div className="bg-gray-50 min-h-screen p-6">
@@ -147,18 +147,6 @@ const AdminProfile = () => {
                 </button>
 
                 <h2 className="text-xl font-bold mb-6 text-gray-800">Change Password</h2>
-
-                {message.text && (
-                    <div
-                        className={`p-3 mb-4 rounded ${
-                            message.type === 'error'
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-green-100 text-green-700'
-                        }`}
-                    >
-                      {message.text}
-                    </div>
-                )}
 
                 <div className="mb-4">
                   <label htmlFor="currentPassword" className="block mb-2 text-sm font-medium text-gray-700">

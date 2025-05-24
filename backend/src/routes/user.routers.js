@@ -3,12 +3,12 @@ import updateUserVerification, {
   changeCurrentPassword, getAllBackers, getAllCompanies,
   getCompanyDetails,
   getCurrentUser,
-  getRoleByMail,
+  getRoleByMail, getUserProfile,
   loginUser,
   logoutUser,
   refreshAccessToken,
   registerUser,
-  updateAccountDetails,
+  updateAccountDetails, updateKYC,
   updateUserAvatar,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -16,19 +16,10 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route("/register").post(
-  // upload.fields([
-  //   {
-  //     name: "avatar",
-  //     maxCount: 1,
-  //   },
-  //   {
-  //     name: "coverImage",
-  //     maxCount: 1,
-  //   },
-  // ]),
+router.route("/register").post(upload.fields([{ name: 'avatar', maxCount: 1 }]),
  registerUser
 );
+router.post('/:id/updatekyc', upload.single('kycImage'), updateKYC);
 
 router.route("/getAllBackers").get(getAllBackers);
 router.route("/getAllCompanies").get(getAllCompanies);
@@ -43,9 +34,8 @@ router.route("/change-password").post( changeCurrentPassword);
 router.route("/current-user").get(verifyJWT, getCurrentUser);
 router.route("/update-account").patch(verifyJWT, updateAccountDetails);
 router.route("/role").get(verifyJWT, getRoleByMail);
+router.route("/getUserProfile").get(verifyJWT, getUserProfile);
 
-router
-  .route("/avatar")
-  .patch(verifyJWT, upload.single("avatar"), updateUserAvatar);
+router.put("/:id/avatar", upload.single("avatar"), updateUserAvatar);
 
 export default router;

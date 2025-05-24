@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { Link } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 import getAxios from "../hooks/getAxios.jsx";
 import PledgeModal from "../modal/PledgeModal.jsx";
 
 
 const DetailCard = ({ detail }) => {
+    const navigate = useNavigate();
+    const progress = (detail.pledged_amount/detail.fund_amount  ) * 100;
     const user=localStorage.getItem("userRole");
-    const { data, loading } = getAxios(`http://localhost:8000/api/v1/project/perk/${detail._id}`);
-    const pledged_amount = 0;
-    const backers = 0;
+    const { data, loading } = getAxios(`${import.meta.env.VITE_BACKEND}api/v1/project/perk/${detail._id}`);
+    const pledged_amount = detail.pledged_amount;
+    const backers = detail.noOfBacker;
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [amount, setAmount] = useState('');
@@ -58,10 +60,13 @@ const DetailCard = ({ detail }) => {
         <>
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <div className="mb-8">
-                    <Link to={"/"} className="text-coral-500 hover:text-coral-600 flex items-center gap-1">
+                    <button
+                      onClick={() => navigate(-1)}
+                      className="text-coral-500 hover:text-coral-600 flex items-center gap-1"
+                    >
                         <ChevronLeft size={20} />
-                        <span>Back to Homepage</span>
-                    </Link>
+                        <span>Go Back</span>
+                    </button>
                 </div>
 
                 <div className="text-center mb-8">
@@ -107,7 +112,7 @@ const DetailCard = ({ detail }) => {
 
                     <div className="bg-card-bg rounded-xl p-6 w-5/6">
                         <div className="w-full h-2 bg-card-alt-bg rounded-full mt-4">
-                            <div className="h-full bg-coral-500 rounded-full transition-all duration-300" style={{ width: `${Math.floor(Math.random() * 101)}%` }} />
+                            <div className="h-full bg-coral-500 rounded-full transition-all duration-300" style={{ width: `${progress}` }} />
                         </div>
 
                         <div className="mb-6">

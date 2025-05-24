@@ -21,10 +21,14 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
     },
-    // avatar: {
-    //   type: String, // cloudinary url
-    //   required: true,
-    // },
+    avatar: {
+      type: String, // cloudinary url
+    },
+    kyc: {
+      data:{type:Object },
+      url: { type: String },
+    },
+
     role: {
       type: String,
       enum: ["admin", "backer", "company"],

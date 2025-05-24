@@ -38,7 +38,7 @@ const Success = () => {
 
         try {
             const response = await axios.post(
-                "http://localhost:8000/api/payment-status",
+                `${import.meta.env.VITE_BACKEND}/api/payment-status`,
                 {
                     UUID, // Send the UUID to find the transaction
                     pidx: queryParams.get("pidx"), // Send the pidx for Khalti verification

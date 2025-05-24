@@ -27,9 +27,10 @@ import Failure from "../Components/Failure.jsx";
 import PaymentForm from "../Components/PaymentForm.jsx";
 import CompanyProjects from "../pages/company/CompanyProjects.jsx";
 import BackerDashboard from "../pages/backer/BackerDashboard.jsx";
-import BackerOverview from "../pages/backer/BackerOverview.jsx";
 import BackerProfile from "../pages/backer/BackerProfile.jsx";
 import FundedProject from "../pages/backer/FundedProject.jsx";
+import Kyc from "../Components/Kyc.jsx";
+import ExploreAll from "../pages/category/ExploreAll.jsx";
 
 function AppRoutes(props) {
     const router = createBrowserRouter([
@@ -72,6 +73,10 @@ function AppRoutes(props) {
         {
             path:"/category/games",
             element:<Games/>,
+        },
+        {
+            path:"/allprojects",
+            element:<ExploreAll/>
         },
         {
             path: "/",
@@ -126,18 +131,13 @@ function AppRoutes(props) {
             children:[
                 {
                     path:"/backer",
-                    element:<BackerOverview/>
+                    element:<FundedProject/>
                 },
                 {
                     path:"/backer/profile",
                     element:<BackerProfile/>
 
-                },
-                {
-                    path:"/backer/projects",
-                    element:<FundedProject/>
-
-                },
+                }
 
             ]
         },
@@ -167,6 +167,10 @@ function AppRoutes(props) {
                 {
                     path:"/company/projects",
                     element:<CompanyProjects/>
+                },
+                {
+                    path:"/company/kyc",
+                    element:<Kyc/>
                 }
 
             ]

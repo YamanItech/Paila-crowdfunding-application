@@ -23,7 +23,7 @@ const Failure = () => {
 
     const markPaymentAsFailed = async (product_id) => {
         try {
-            await axios.post("http://localhost:8000/api/payment-status", {
+            await axios.post(`${import.meta.env.VITE_BACKEND}/api/payment-status`, {
                 product_id,
                 status: "FAILED",
             });

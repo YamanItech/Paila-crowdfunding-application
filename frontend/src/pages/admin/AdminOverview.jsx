@@ -4,9 +4,9 @@ import { Users, Folder, HandCoins } from 'lucide-react';
 const AdminOverview = () => {
   // State to store the data fetched from API
   const [stats, setStats] = useState({
-    backercount: 0,
-    projectscount: 0,
-    pledgecount: 0,
+    backercount: 1,
+    projectscount: 13,
+    pledgecount: 14698,
   });
 
   // Simulate fetching data from API

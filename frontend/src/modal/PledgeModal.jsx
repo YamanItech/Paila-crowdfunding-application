@@ -5,7 +5,7 @@ import {useState} from "react";
 
 export default function PledgeModal({ open, onClose, amount, setAmount, data }) {
     const [paymentOpen, setPaymentOpen] = useState(false);
-    let selectedPerk;
+    let selectedPerkId;
     if (!open) return null;
     const handleNext = async () => {
         const amountValue = parseFloat(amount);
@@ -16,7 +16,7 @@ export default function PledgeModal({ open, onClose, amount, setAmount, data }) 
         }
 
         const perks = data?.data;
-        let selectedPerkId = null;
+
 
         if (perks) {
             const benefit1 = perks.benefit1?.[0];
@@ -34,7 +34,7 @@ export default function PledgeModal({ open, onClose, amount, setAmount, data }) 
                 selectedPerkId = 1;
             }
         }
-        selectedPerk=selectedPerkId;
+        localStorage.setItem("selectedPerkId", selectedPerkId);
         console.log("Selected Perk ID:", selectedPerkId);
         setPaymentOpen(true);
 
@@ -103,7 +103,6 @@ export default function PledgeModal({ open, onClose, amount, setAmount, data }) 
                 setOpen={setPaymentOpen}
                 amount={amount}
                 data={data}
-                selectedPerkId={selectedPerk}
             />
         </>
     );

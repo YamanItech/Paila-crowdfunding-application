@@ -4,7 +4,8 @@ import { Project } from "../models/project.model.js";
 import { Company } from "../models/company.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import {sendEmail} from "../utils/emailService.js"
+import {sendEmail} from "../utils/emailService.js";
+import {Transaction} from "../models/paymentModel.js";
 const addProject = asyncHandler(async (req, res) => {
   const {
     CompanyId,
@@ -80,27 +81,32 @@ const addProject = asyncHandler(async (req, res) => {
   );
 });
 const getAllProjects = asyncHandler(async (req, res) => {
-  // Retrieve all projects and populate the associated company details (via User model)
-  const projects = await Project.find()
+  const searchQuery = req.query.search;
+
+  const filter = searchQuery
+    ? { project_name: { $regex: searchQuery, $options: "i" } }
+    : {};
+
+  const projects = await Project.find(filter)
     .populate({
-      path: 'CompanyId', // The company (CompanyId) reference in Project model
-      select: 'Projects', // Select the reference Projects (if needed)
+      path: 'CompanyId',
+      select: 'Projects',
       populate: {
-        path: '_id', // Populate the _id from Company model (which is a reference to User model)
-        select: 'fullName description verified', // Select fullName and description from the User model
+        path: '_id',
+        select: 'fullName description verified',
       }
     })
-    .sort({ createdAt: -1 }); // Sort by createdAt date in descending order
+    .sort({ createdAt: -1 });
 
   if (!projects || projects.length === 0) {
     throw new ApiError(404, "No projects found");
   }
 
-  // Return the list of projects with company details populated
   return res.status(200).json(
     new ApiResponse(200, projects, "Projects retrieved successfully")
   );
 });
+
 
 const toggleProjectStatus = async (req, res, next) => {
   const { projectId } = req.params;
@@ -148,12 +154,25 @@ const toggleProjectStatus = async (req, res, next) => {
 
 const getByCategory = asyncHandler(async (req, res) => {
   const { categoryName } = req.params; // Get category from route parameter
+  const searchQuery = req.query.search; // Get search query from query parameters
 
-  // Build the query object to filter by category
-  const query = { Category: categoryName };
+  // Validate categoryName and searchQuery (optional)
+  if (typeof categoryName !== 'string' || categoryName.trim().length === 0) {
+    throw new ApiError(400, "Invalid category name");
+  }
+
+  if (searchQuery && typeof searchQuery !== 'string') {
+    throw new ApiError(400, "Invalid search query");
+  }
+
+  // Build the query object to filter by category and optionally by project name
+  const filter = { Category: categoryName };
+  if (searchQuery) {
+    filter.project_name = { $regex: searchQuery, $options: 'i' }; // Case-insensitive search on project_name
+  }
 
   // Retrieve projects and populate associated company details
-  const projects = await Project.find(query)
+  const projects = await Project.find(filter)
     .populate({
       path: 'CompanyId',
       select: 'Projects',
@@ -228,4 +247,75 @@ const getProjectsByCompanyId = asyncHandler(async (req, res) => {
   );
 });
 
-export { addProject, getAllProjects ,toggleProjectStatus,getByCategory,updateProject,getProjectsByCompanyId};
+
+const getBackerFundedProjects = asyncHandler(async (req, res) => {
+  const backerId = req.user._id;
+
+  try {
+    // First, let's check what's actually in the transactions
+    const transactions = await Transaction.find({
+      backer_id: backerId,
+      status: "COMPLETED",
+    })
+      .lean()
+      .populate({
+        path: "product_id",
+        select: "project_name pledged_amount CompanyId",
+        populate: [
+          {
+            path: "CompanyId", // Populate the company information
+            select: "fullName" // Fetching the company name
+          },
+
+        ]
+      })
+      .select("amount product_id perk"); // Fixed typo in product*id
+
+    // Debug: Log the first transaction to see if perk exists
+    if (transactions.length > 0) {
+      console.log("First transaction:", JSON.stringify(transactions[0], null, 2));
+    }
+
+    // Return early with a clear message if no funded projects exist
+    if (!transactions || transactions.length === 0) {
+      return res.status(200).json(
+        new ApiResponse(200, [], "You haven't funded any projects yet.")
+      );
+    }
+
+    // Map to the required format with proper debugging for perk
+    const fundedProjects = transactions.map((tx) => {
+      const project = tx.product_id || {};
+
+      // Debug: Log the perk value
+      console.log(`Transaction ID: ${tx._id}, Perk value: ${tx.perk}, Type: ${typeof tx.perk}`);
+
+      return {
+        projectId: project._id,
+        projectName: project.project_name || 'Unknown Project',
+        totalFunding: project.pledged_amount || 0,
+        myFunding: tx.amount || 0,
+        // Convert perk to string for consistency and to handle zero values properly
+        perk: tx.perk !== undefined && tx.perk !== null ? tx.perk.toString() : 'No perk selected',
+        currentPledgedAmount: project.pledged_amount || 0,
+
+      };
+    });
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        fundedProjects,
+        `Successfully retrieved ${fundedProjects.length} funded projects.`
+      )
+    );
+  } catch (error) {
+    console.error("Error in getBackerFundedProjects:", error);
+    throw new ApiError(
+      500,
+      "An error occurred while retrieving your funded projects. Please try again."
+    );
+  }
+});
+
+export { addProject, getAllProjects ,toggleProjectStatus,getByCategory,updateProject,getProjectsByCompanyId,getBackerFundedProjects};

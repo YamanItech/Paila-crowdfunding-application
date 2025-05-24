@@ -32,7 +32,7 @@ const PaymentComponent = () => {
             sessionStorage.setItem("current_transaction_id", productId);
 
             const response = await axios.post(
-                "http://localhost:8000/api/initiate-payment",
+                `${import.meta.env.VITE_BACKEND}/api/initiate-payment`,
                 {
                     ...formData,
                     productId,

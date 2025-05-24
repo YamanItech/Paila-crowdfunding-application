@@ -52,7 +52,7 @@ const projectSchema = new Schema({
             type: Number,
             required:true,
         },
-    pledged_amount:{
+      pledged_amount:{
         type:Number,
         default:0
     },

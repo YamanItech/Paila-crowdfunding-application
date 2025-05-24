@@ -7,6 +7,7 @@ import {User} from "../models/user.model.js";
 import {Backer} from "../models/backer.model.js"
 import {Company} from "../models/company.model.js";
 import {Admin} from "../models/admin.model.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 const generateAccessAndRefreshTokens = async(userId) =>{
   try {
@@ -25,68 +26,57 @@ const generateAccessAndRefreshTokens = async(userId) =>{
   }
 }
 
-const registerUser = asyncHandler( async (req, res) => {
-  // get user details from frontend
-  // validation - not empty
-  // check if user already exists: username, email
-  // check for images, check for avatar
-  // upload them to cloudinary, avatar
-  // create user object - create entry in db
-  // remove password and refresh token field from response
-  // check for user creation
-  // return res
+const registerUser = asyncHandler(async (req, res) => {
+  // Get user details from frontend
+  const {fullName, email, password, role, description} = req.body
 
-
-  const {fullName, email, password,role,description } = req.body
-  //console.log("email: ", email);
-
-  if (
-    [fullName, email,password,role,description].some((field) => field?.trim() === "")
-  ) {
-    throw new ApiError(400, "All fields are required")
+  // Validation - not empty
+  if ([fullName, email, password, role].some((field) => field?.trim() === "")) {
+    throw new ApiError(400, "Required fields cannot be empty")
   }
 
-  const existedUser = await User.findOne({
-    $or: [ { email }]
-  })
+  // Check if user already exists: email
+  const existedUser = await User.findOne({ email })
 
   if (existedUser) {
-    throw new ApiError(409, "User with email or username already exists")
+    throw new ApiError(409, "User with this email already exists")
   }
-  //console.log(req.files);
 
-  // const avatarLocalPath = req.files?.avatar[0]?.path;
-  // //const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  // Handle avatar upload to Cloudinary if file is present
+  let avatarUrl = null;
+  if (req.files && req.files["avatar"]) {
+    const avatarLocalPath = req.files["avatar"][0].path;
 
-  // if (!avatarLocalPath) {
-  //   throw new ApiError(400, "Avatar file is required")
-  // }
+    // Upload to Cloudinary
+    const avatarResponse = await uploadOnCloudinary(avatarLocalPath);
+    if (!avatarResponse) {
+      throw new ApiError(500, "Error uploading avatar to Cloudinary");
+    }
 
-  // const avatar = await uploadOnCloudinary(avatarLocalPath)
+    // Get the URL
+    avatarUrl = avatarResponse.url;
+  }
 
-  // if (!avatar) {
-  //   throw new ApiError(400, "Avatar file is required")
-  // }
-
-
+  // Create user object - create entry in db
   const user = await User.create({
     fullName,
-    // avatar: avatar.url,
-    email:email,
+    email,
     password,
     role,
-    description
+    description,
+    avatar: avatarUrl // Set avatar URL (null if no file uploaded)
   })
-  // "admin", "backer", "company"
+
+  // Create corresponding role-based entry
   if (user.role === "backer") {
     await Backer.create({ _id: user._id });
-  }
-  else if(user.role ==="admin"){
+  } else if (user.role === "admin") {
     await Admin.create({ _id: user._id });
-  }
-  else{
+  } else {
     await Company.create({ _id: user._id });
   }
+
+  // Remove password and refresh token field from response
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
   )
@@ -98,8 +88,7 @@ const registerUser = asyncHandler( async (req, res) => {
   return res.status(201).json(
     new ApiResponse(200, createdUser, "User registered Successfully")
   )
-
-} )
+})
 
 const loginUser = asyncHandler(async (req, res) =>{
   // req body -> data
@@ -332,39 +321,94 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "Account details updated successfully"))
 });
+// Controller to handle KYC update using user ID in the URL
+const updateKYC = asyncHandler(async (req, res) => {
+  // Check if user exists
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
 
-const updateUserAvatar = asyncHandler(async(req, res) => {
-  const avatarLocalPath = req.file?.path
+  // Handle KYC image upload
+  if (!req.file) {
+    return res.status(400).json({ message: "No KYC image uploaded" });
+  }
+
+  const kycResponse = await uploadOnCloudinary(req.file.path);
+  if (!kycResponse || !kycResponse.url) {
+    return res.status(500).json({ message: "Error uploading KYC image to Cloudinary" });
+  }
+
+  // Extract all form data except the file
+  const formData = {
+    fullName: req.body.fullName,
+    gender: req.body.gender,
+    dob: req.body.dob,
+    citizenshipNumber: req.body.citizenshipNumber,
+    citizenshipIssueDistrict: req.body.citizenshipIssueDistrict,
+    citizenshipIssueDate: req.body.citizenshipIssueDate,
+    province: req.body.province,
+    district: req.body.district,
+    address: req.body.address,
+    mobileNumber: req.body.mobileNumber,
+    email: req.body.email,
+    occupation: req.body.occupation
+  };
+
+  // Update user's KYC field with all data and image URL
+  user.kyc = {
+    data: formData,
+    url: kycResponse.url,
+    status: 'pending'
+  };
+
+  await user.save();
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        kycUrl: kycResponse.url,
+        status: 'pending'
+      },
+      "KYC submitted successfully and pending review"
+    )
+  );
+});
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  const avatarLocalPath = req.file?.path;
 
   if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar file is missing")
+    throw new ApiError(400, "Avatar file is missing");
   }
 
-  //TODO: delete old image - assignment
+  // TODO: delete old image - assignment
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath)
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-  if (!avatar.url) {
-    throw new ApiError(400, "Error while uploading on avatar")
-
+  if (!avatar?.url) {
+    throw new ApiError(400, "Error while uploading avatar");
   }
+
+  const userId = req.params.id;
 
   const user = await User.findByIdAndUpdate(
-    req.user?._id,
-    {
-      $set:{
-        avatar: avatar.url
-      }
-    },
-    {new: true}
-  ).select("-password")
+    userId,
+    { $set: { avatar: avatar.url } },
+    { new: true }
+  ).select("-password");
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, user, "Avatar image updated successfully")
-    )
-})
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, user, "Avatar image updated successfully")
+  );
+});
+
+
 const getCompanyDetails = asyncHandler(async (req, res) => {
   const { company_id } = req.params;  // Get the company_id from URL parameters
 
@@ -428,7 +472,19 @@ const updateUserVerification = asyncHandler(async (req, res) => {
 
 export default updateUserVerification;
 
+const getUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user?._id).select("-password");
 
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "User profile fetched successfully"));
+});
+
+export { getUserProfile };
 
 
 export {
@@ -442,5 +498,6 @@ export {
   updateUserAvatar,
   getRoleByMail,getCompanyDetails,
   getAllBackers,
-  getAllCompanies
+  getAllCompanies,
+  updateKYC
 }

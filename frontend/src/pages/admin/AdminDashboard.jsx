@@ -36,7 +36,7 @@ function AdminDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex relative">
+        <div className="h-screen bg-gray-50 flex relative">
             {/* Sidebar */}
             <aside className="w-64 bg-white shadow-lg flex flex-col justify-between">
                 <div>
@@ -117,7 +117,7 @@ function AdminDashboard() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 p-8 relative">
+            <main className="flex-1 p-8 relative overflow-y-auto">
                 {/* Settings Icon */}
                 <div className="absolute top-4 right-4">
                     <button
