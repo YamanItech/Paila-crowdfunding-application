@@ -24,7 +24,7 @@ function AdminDashboard() {
     };
 
     const handleLogout = () => {
-        console.log('Logging out...');
+        localStorage.clear();
         setIsLogoutModalOpen(false);
         setIsDropdownOpen(false);
         navigate('/login');

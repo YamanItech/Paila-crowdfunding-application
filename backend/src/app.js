@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import { errorHandler } from "./utils/errorHandler.js";
 
 const app = express()
 
@@ -20,10 +21,15 @@ import userRouters from "./routes/user.routers.js";
 import projectRouters from "./routes/project.routers.js"
 import perkRouters from"./routes/perk.routers.js"
 import paymentRoutes from "./routes/PaymentRoutes.js";
+
+// Routes
 app.use("/api/v1/healthcheck", healthcheckRoutes);
 app.use("/api/v1/users", userRouters);
 app.use("/api/v1/company/",projectRouters);
 app.use("/api/v1/project/",perkRouters);
 app.use("/api", paymentRoutes);
+
+// Error handler
+app.use(errorHandler);
 
 export {app};

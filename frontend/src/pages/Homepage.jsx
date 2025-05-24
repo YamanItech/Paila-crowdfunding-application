@@ -13,12 +13,26 @@ function Homepage() {
         return <div>Loading...</div>;
     }
 
-    // Check if data is an array and handle any errors in case it's not
-    if (!Array.isArray(data?.data)) {
-        return <div>Error: Data is not an array or is in an unexpected format.</div>;
-    }
-
+  // Check if data is an array and handle any errors in case it's not
+  if (!Array.isArray(data?.data)) {
     return (
+      <>
+        <Header />
+        <div>
+          <FeaturedProduct />
+        </div>
+        <div className="p-5 container mx-auto">
+          <h2 className="text-4xl font-bold mb-4">All Projects</h2>
+          <div className="text-center">
+            <p>Error loading projects. Please try again later.</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+
+  return (
         <>
             <Header />
             {/* Hero Section */}

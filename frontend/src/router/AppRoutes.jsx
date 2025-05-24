@@ -78,10 +78,7 @@ function AppRoutes(props) {
             path:"/allprojects",
             element:<ExploreAll/>
         },
-        {
-            path: "/",
-            element: <Homepage/>
-        },
+
         {
             path: "/login",
             element:<Auth/>
@@ -95,6 +92,15 @@ function AppRoutes(props) {
             path:"/perk",
             element:<Perk/>
         },
+        {
+            path: "/",
+            element: (
+              <PrivateRoute userTypeRequired={null}>
+                  <Homepage />
+              </PrivateRoute>
+            )
+        }
+,
 
         {
             path:"/admin",

@@ -8,7 +8,7 @@ const ManageCompanies = () => {
 
     const fetchCompanies = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_BACKEND}api/v1/users/getAllCompanies`, { withCredentials: true });
+            const res = await axios.get(`${import.meta.env.VITE_BACKEND}/api/v1/users/getAllCompanies`, { withCredentials: true });
             setCompanies(res.data.data);
         } catch (err) {
             console.error("Error fetching companies:", err);

@@ -9,7 +9,7 @@ const DetailCard = ({ detail }) => {
     const navigate = useNavigate();
     const progress = (detail.pledged_amount/detail.fund_amount  ) * 100;
     const user=localStorage.getItem("userRole");
-    const { data, loading } = getAxios(`${import.meta.env.VITE_BACKEND}api/v1/project/perk/${detail._id}`);
+    const { data, loading } = getAxios(`${import.meta.env.VITE_BACKEND}/api/v1/project/perk/${detail._id}`);
     const pledged_amount = detail.pledged_amount;
     const backers = detail.noOfBacker;
     const [currentImageIndex, setCurrentImageIndex] = useState(0);

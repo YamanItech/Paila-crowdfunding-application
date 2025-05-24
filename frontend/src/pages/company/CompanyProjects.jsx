@@ -159,8 +159,9 @@ const CompanyProjects = () => {
                                             ) : project.project_description}
                                         </td>
                                         <td className="py-4 px-6 text-gray-700 font-medium">
-                                            ${project.fund_amount.toLocaleString()}
+                                            {project.fund_amount.toLocaleString('ne-NP', { style: 'currency', currency: 'NPR' })}
                                         </td>
+
                                         <td className="py-4 px-6">
                                                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                                                     project.status === "Active"

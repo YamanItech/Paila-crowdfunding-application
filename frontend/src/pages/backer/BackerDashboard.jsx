@@ -26,7 +26,7 @@ function BackerDashboard() {
     };
 
     const handleLogout = () => {
-        console.log('Logging out...');
+        localStorage.clear();
         setIsLogoutModalOpen(false);
         setIsDropdownOpen(false);
         navigate('/login');
@@ -154,7 +154,8 @@ function BackerDashboard() {
                             }}
                             className="flex items-center gap-2 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg w-full text-left"
                         >
-                            <LogOut className="w-5 h-5" onClick={localStorage.clear} />
+                            <LogOut className="w-5 h-5"  />
+
                             Logout
                         </button>
 

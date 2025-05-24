@@ -281,6 +281,11 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
     throw new ApiError(400, "Invalid old password");
   }
 
+  // Check if new password is the same as old password
+  if(oldPassword === newPassword) {
+    throw new ApiError(400, "New password cannot be the same as your current password");
+  }
+
   user.password = newPassword;
   await user.save({validateBeforeSave: false});
 

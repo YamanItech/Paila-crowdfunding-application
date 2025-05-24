@@ -73,9 +73,12 @@ const FundedProject = () => {
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">No Projects Yet</h2>
           <p className="text-gray-600 mb-6">You haven't funded any projects yet.</p>
-          <button className="bg-coral-600 hover:bg-coral-700 text-white px-6 py-3 rounded-lg transition shadow-md">
-            Discover Projects
-          </button>
+          <Link to="/">
+            <button className="bg-coral-600 hover:bg-coral-700 text-white px-6 py-3 rounded-lg transition shadow-md">
+              Discover Projects
+            </button>
+          </Link>
+
         </div>
       </div>
     );
