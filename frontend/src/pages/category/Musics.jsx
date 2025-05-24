@@ -35,7 +35,7 @@ function Musics() {
             try {
                 setLoading(true);
                 const response = await fetch(
-                  `http://localhost:8000/api/v1/company/projects/category/Music?search=${search}`
+                  `http://localhost:8000/api/v1/company/projects/category/Musics?search=${search}`
                 );
 
                 if (!response.ok) {

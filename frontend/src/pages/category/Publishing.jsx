@@ -35,7 +35,7 @@ function Publishing() {
             try {
                 setLoading(true);
                 const response = await fetch(
-                  `http://localhost:8000/api/v1/company/projects/category/publishing?search=${search}`
+                  `http://localhost:8000/api/v1/company/projects/category/Publishing?search=${search}`
                 );
 
                 if (!response.ok) {

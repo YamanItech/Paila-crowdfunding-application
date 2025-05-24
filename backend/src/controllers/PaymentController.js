@@ -128,8 +128,8 @@ const paymentStatus = async (req, res) => {
         // Handle failed transactions
         if (status === "FAILED") {
             await Transaction.updateOne(
-                { UUID },
-                { $set: { status: "FAILED", updatedAt: new Date() } }
+              { UUID },
+              { $set: { status: "FAILED", updatedAt: new Date() } }
             );
 
             return res.status(200).json({
@@ -149,21 +149,16 @@ const paymentStatus = async (req, res) => {
             };
 
             const response = await axios.get(
-                process.env.ESEWA_PAYMENT_STATUS_CHECK_URL,
-                {
-                    params: paymentData,
-                }
+              process.env.ESEWA_PAYMENT_STATUS_CHECK_URL,
+              {
+                  params: paymentData,
+              }
             );
 
             paymentStatusCheck = response.data;
 
             // If payment is complete, update transaction and project
             if (paymentStatusCheck.status === "COMPLETE") {
-                await Transaction.updateOne(
-                    { UUID },
-                    { $set: { status: "COMPLETED", updatedAt: new Date() } }
-                );
-
                 // Update the related Project
                 if (transaction.product_id) {
                     const update = {
@@ -172,11 +167,12 @@ const paymentStatus = async (req, res) => {
                         },
                     };
 
-                    // Check if this backer has already backed this project
+                    // Check if this backer has already backed this project (excluding current transaction)
                     const hasBackedBefore = await Transaction.exists({
                         product_id: transaction.product_id,
                         backer_id: transaction.backer_id,
                         status: "COMPLETED",
+                        UUID: { $ne: UUID } // Exclude current transaction
                     });
 
                     // Only increment noOfBacker if the backer hasn't backed before
@@ -186,10 +182,16 @@ const paymentStatus = async (req, res) => {
 
                     // Update the project document
                     await Project.updateOne(
-                        { _id: transaction.product_id },
-                        update
+                      { _id: transaction.product_id },
+                      update
                     );
                 }
+
+                // Update transaction status AFTER project update
+                await Transaction.updateOne(
+                  { UUID },
+                  { $set: { status: "COMPLETED", updatedAt: new Date() } }
+                );
 
                 return res.status(200).json({
                     message: "Transaction status updated successfully",
@@ -198,8 +200,8 @@ const paymentStatus = async (req, res) => {
             } else {
                 // If payment failed, update transaction status to FAILED
                 await Transaction.updateOne(
-                    { UUID },
-                    { $set: { status: "FAILED", updatedAt: new Date() } }
+                  { UUID },
+                  { $set: { status: "FAILED", updatedAt: new Date() } }
                 );
 
                 return res.status(200).json({
@@ -213,14 +215,14 @@ const paymentStatus = async (req, res) => {
         if (payment_gateway === "khalti") {
             try {
                 const response = await axios.post(
-                    process.env.KHALTI_VERIFICATION_URL,
-                    { pidx },
-                    {
-                        headers: {
-                            Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
-                            "Content-Type": "application/json",
-                        },
-                    }
+                  process.env.KHALTI_VERIFICATION_URL,
+                  { pidx },
+                  {
+                      headers: {
+                          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
+                          "Content-Type": "application/json",
+                      },
+                  }
                 );
 
                 paymentStatusCheck = response.data;
@@ -229,8 +231,8 @@ const paymentStatus = async (req, res) => {
                     paymentStatusCheck = error.response.data;
                 } else {
                     console.error(
-                        "Error verifying Khalti payment:",
-                        error.response?.data || error.message
+                      "Error verifying Khalti payment:",
+                      error.response?.data || error.message
                     );
                     throw error;
                 }
@@ -238,11 +240,6 @@ const paymentStatus = async (req, res) => {
 
             // If payment is completed for Khalti
             if (paymentStatusCheck.status === "Completed") {
-                await Transaction.updateOne(
-                    { UUID },
-                    { $set: { status: "COMPLETED", updatedAt: new Date() } }
-                );
-
                 // Update the related Project
                 if (transaction.product_id) {
                     const update = {
@@ -251,11 +248,12 @@ const paymentStatus = async (req, res) => {
                         },
                     };
 
-                    // Check if this backer has already backed this project
+                    // Check if this backer has already backed this project (excluding current transaction)
                     const hasBackedBefore = await Transaction.exists({
                         product_id: transaction.product_id,
                         backer_id: transaction.backer_id,
                         status: "COMPLETED",
+                        UUID: { $ne: UUID } // Exclude current transaction
                     });
 
                     // Only increment noOfBacker if the backer hasn't backed before
@@ -265,10 +263,16 @@ const paymentStatus = async (req, res) => {
 
                     // Update the project document
                     await Project.updateOne(
-                        { _id: transaction.product_id },
-                        update
+                      { _id: transaction.product_id },
+                      update
                     );
                 }
+
+                // Update transaction status AFTER project update
+                await Transaction.updateOne(
+                  { UUID },
+                  { $set: { status: "COMPLETED", updatedAt: new Date() } }
+                );
 
                 return res.status(200).json({
                     message: "Transaction status updated successfully",
@@ -277,8 +281,8 @@ const paymentStatus = async (req, res) => {
             } else {
                 // If payment failed, update transaction status to FAILED
                 await Transaction.updateOne(
-                    { UUID },
-                    { $set: { status: "FAILED", updatedAt: new Date() } }
+                  { UUID },
+                  { $set: { status: "FAILED", updatedAt: new Date() } }
                 );
 
                 return res.status(200).json({

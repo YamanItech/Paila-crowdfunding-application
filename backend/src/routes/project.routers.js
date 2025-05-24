@@ -5,7 +5,7 @@ import {
     getByCategory, getProjectsByCompanyId,
     toggleProjectStatus,
     updateProject,
-    getBackerFundedProjects
+    getBackerFundedProjects, getAllTransactionSummary, getCompanyTransactionSummary,
 } from "../controllers/project.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -27,4 +27,7 @@ router.route("/projects/category/:categoryName").get(getByCategory);
 router.route("/projects/:projectId/update").patch(updateProject);
 router.route("/project/:companyId").get(getProjectsByCompanyId);
 router.route("/backer/funded-projects").get(verifyJWT, getBackerFundedProjects);
+router.route("/overview").get(getAllTransactionSummary);
+router.route("/overview/:companyId").get(getCompanyTransactionSummary);
+
 export default router;

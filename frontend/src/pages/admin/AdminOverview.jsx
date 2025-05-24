@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Users, Folder, HandCoins } from 'lucide-react';
 
 const AdminOverview = () => {
-  // State to store the data fetched from API
   const [stats, setStats] = useState({
-    backercount: 1,
-    projectscount: 13,
-    pledgecount: 14698,
+    backercount: 0,
+    projectscount: 0,
+    pledgecount: 0,
   });
 
   // Simulate fetching data from API
@@ -14,12 +13,12 @@ const AdminOverview = () => {
     // Replace this with your API call
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/statistics'); // Your API endpoint
-        const data = await response.json(); // Assuming response is in JSON format
+        const response = await fetch(`${import.meta.env.VITE_BACKEND}/api/v1/company/overview`);
+        const data = await response.json();
         setStats({
-          backercount: data.backercount,
-          projectscount: data.projectscount,
-          pledgecount: data.pledgecount,
+          backercount: data.data.Backers,
+          projectscount: data.data.Projects,
+          pledgecount: data.data.Pledges,
         });
       } catch (error) {
         console.error('Error fetching data', error);
@@ -31,7 +30,7 @@ const AdminOverview = () => {
 
   return (
       <div className="space-y-8 px-4 sm:px-8 lg:px-16">
-        <h1 className="text-3xl font-semibold text-gray-800 mb-6">Overview</h1>
+        <h1 className="text-3xl font-semibold text-gray-800 mb-6">Funding Summary</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {/* Backers */}
           <div

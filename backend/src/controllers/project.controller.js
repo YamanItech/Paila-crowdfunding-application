@@ -318,4 +318,55 @@ const getBackerFundedProjects = asyncHandler(async (req, res) => {
   }
 });
 
-export { addProject, getAllProjects ,toggleProjectStatus,getByCategory,updateProject,getProjectsByCompanyId,getBackerFundedProjects};
+const getAllTransactionSummary = asyncHandler(async (req, res) => {
+  // 1. Get unique backers and projects
+  const [backers, projects, totalPledgedAgg] = await Promise.all([
+    Transaction.distinct("backer_id"),
+    Transaction.distinct("product_id"),
+    Transaction.aggregate([
+      { $match: { status: "COMPLETED" } },
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ])
+  ]);
+
+  const totalPledged = totalPledgedAgg[0]?.total || 0;
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      Backers: backers.length,
+      Projects: projects.length,
+      Pledges: totalPledged
+    }, "All transactions summary fetched successfully")
+  );
+});
+const getCompanyTransactionSummary = asyncHandler(async (req, res) => {
+  const { companyId } = req.params;
+
+  // 1. Get all projects for the company
+  const projects = await Project.find({ CompanyId: companyId }).select("_id");
+  if (!projects || projects.length === 0) {
+    throw new ApiError(404, "No projects found for the given company");
+  }
+
+  const projectIds = projects.map(project => project._id);
+
+  // 2. Get completed transactions for those projects
+  const transactions = await Transaction.find({
+    product_id: { $in: projectIds },
+    status: "COMPLETED"
+  });
+
+  // 3. Calculate unique backers and total pledged
+  const uniqueBackers = new Set(transactions.map(t => t.backer_id?.toString()));
+  const totalPledged = transactions.reduce((sum, tx) => sum + tx.amount, 0);
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      Backers: uniqueBackers.size,
+      Projects: projectIds.length,
+      Pledges: totalPledged
+    }, "Company transaction summary fetched successfully")
+  );
+});
+
+export { addProject, getAllProjects ,toggleProjectStatus,getByCategory,updateProject,getProjectsByCompanyId,getBackerFundedProjects,getAllTransactionSummary,getCompanyTransactionSummary};

@@ -55,6 +55,10 @@ function AppRoutes(props) {
             element: <Art/>
         },
         {
+            path:"/category/musics",
+            element:<Musics/>,
+        },
+        {
             path:"/category/music",
             element:<Musics/>,
         },

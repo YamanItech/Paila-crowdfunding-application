@@ -238,7 +238,7 @@ const Success = () => {
 
                     <div className="flex flex-col space-y-3">
                         <button
-                            onClick={() => navigate("/backer/projects")}
+                            onClick={() => navigate("/backer")}
                             className="w-full py-3 px-6 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium shadow-lg hover:shadow-xl transform transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                         >
                             Go to Dashboard
